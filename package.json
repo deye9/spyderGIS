@@ -1,19 +1,19 @@
 {
-  "name": "hackathon-starter",
+  "name": "spyder-gis",
   "version": "4.3.0",
-  "description": "A boilerplate for Node.js web applications",
+  "description": "A node.js version of the spyder GIS originally written in PHP / Laravel.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sahat/hackathon-starter.git"
+    "url": "https://github.com/deye9/spyderGIS.git"
   },
-  "author": "Sahat Yalkabov",
+  "author": "Adegbenga A. Adeye",
   "license": "MIT",
   "scripts": {
     "start": "node app.js",
     "eslint": "eslint **/*.js",
-    "babel": "babel-watch --watch ./views app.js",
     "test": "mocha --reporter spec",
     "postinstall": "npm rebuild node-sass",
+    "babel": "babel-watch --watch ./views app.js",
     "sass": "node-sass ./public/css/ -o ./public/css/"
   },
   "dependencies": {
