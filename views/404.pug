@@ -1,0 +1,19 @@
+extends ./layouts/landing
+
+block content
+  br
+  br
+  .container
+      .jumbotron
+        .text-center
+          i.fa.fa-5x.fa-frown-o(style='color:#d9534f;')
+        h1.text-center
+          | #{title}
+        p.text-center Sorry, but the page you are looking for was either not found or does not exist.
+            br
+            | Try refreshing the page or click the button below to go back to the Homepage. 
+        p.text-center Try pressing the back button or clicking on this button.
+        p.text-center
+          a.btn.btn-primary(href='/')
+            i.fa.fa-home
+            |  Take Me Home

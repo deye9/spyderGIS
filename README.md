@@ -1265,7 +1265,7 @@ listed below.
 Add these two lines to `app.js`, just place them anywhere before `app.listen()`:
 ```js
 var IP_ADDRESS = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
-var PORT = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+var PORT = process.env.OPENSHIFT_NODEJS_PORT || 1981;
 ```
 
 Then change `app.listen()` to:
