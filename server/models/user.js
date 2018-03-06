@@ -1,11 +1,110 @@
 import bcrypt from 'bcrypt-nodejs';
-import crypto from 'crypto';
 
-// const mongoose = require('mongoose');
+const userModel = (sequelize, DataTypes) => {
+  const User = sequelize.define('User', {
+    firstName: {
+      type: DataTypes.STRING(30),
+      allowNull: false
+    },
+    lastName: {
+      type: DataTypes.STRING(30),
+      allowNull: false
+    },
+    email: {
+      type: DataTypes.STRING(45),
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true
+      }
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    passwordResetToken: String,
+    passwordResetExpires: Date,
 
+    facebook: String,
+    twitter: String,
+    google: String,
+    github: String,
+    instagram: String,
+    linkedin: String,
+    steam: String,
+    tokens: Array,
+
+    profile: {
+      name: String,
+      gender: String,
+      location: String,
+      website: String,
+      picture: String
+    } },
+  {
+    timestamps: true,
+    paranoid: true,
+    underscored: true
+  });
+  User.associate = (models) => {
+    User.hasMany(models.Recipe, {
+      foreignKey: 'userId',
+      as: 'recipes'
+    });
+    User.hasMany(models.Review, {
+      foreignKey: 'userId',
+      as: 'reviews'
+    });
+    User.hasMany(models.Favorite, {
+      foreignKey: 'userId',
+      as: 'favorites'
+    });
+    User.hasMany(models.Voting, {
+      foreignKey: 'userId',
+      as: 'votings'
+    });
+  };
+
+  /**
+    * Method for comparing passwords
+    * @param { object } user
+    * @param { string } password
+    * 
+    * @returns { object } user
+  */
+  User.prototype.comparePassword = (user, password) =>
+    bcrypt.compareSync(password, user.password);
+
+  /**
+    * Hook for hashing password before creating a new user
+  */
+  User.hook('beforeCreate', (user) => {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(user.password, salt);
+    user.password = hash;
+  });
+  
+  /**
+    * auth validation rules for user creation and login
+    * @returns { object } object
+  */
+  User.createRules = () => ({
+    firstName: 'required|alpha',
+    lastName: 'required|alpha',
+    username: 'required|min:6',
+    email: 'required|email',
+    password: 'required|min:6'
+  });
+
+  User.loginRules = () => ({
+    email: 'required|email',
+    password: 'required'
+  });
+  return User;
+};
+  
+export default userModel;
 // const userSchema = new mongoose.Schema({
-//   email: { type: String, unique: true },
-//   password: String,
 //   passwordResetToken: String,
 //   passwordResetExpires: Date,
 
@@ -25,7 +124,7 @@ import crypto from 'crypto';
 //     website: String,
 //     picture: String
 //   }
-// }, { timestamps: true });
+// });
 
 // /**
 //  * Password hash middleware.
@@ -65,7 +164,3 @@ import crypto from 'crypto';
 //   const md5 = crypto.createHash('md5').update(this.email).digest('hex');
 //   return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
 // };
-
-// const User = mongoose.model('User', userSchema);
-const User = {}; // DELETE THIS LINE.
-module.exports = User;

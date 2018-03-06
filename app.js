@@ -1,6 +1,5 @@
 // Module dependencies.
 import path from 'path';
-// import http from 'http';
 import chalk from 'chalk';
 import lusca from 'lusca';
 import multer from 'multer';
@@ -97,30 +96,29 @@ server.use((req, res) => {
   res.type('txt').send('Not found');
 });
 
-// Handle 500 error. Set up all default catch-all route that sends a message in JSON format
-server.use((error, req, res, next) => {
-  res.status(500);
+// // Handle 500 error. Set up all default catch-all route that sends a message in JSON format
+// server.use((error, req, res, next) => {
+//   res.status(500);
 
-  // respond with html page
-  if (req.accepts('html')) {
-    res.render('500', { title: '500: Internal Server Error', Error: error });
-    return;
-  }
+//   // respond with html page
+//   if (req.accepts('html')) {
+//     res.render('500', { title: '500: Internal Server Error', Error: error });
+//     return;
+//   }
 
-  // respond with json
-  if (req.accepts('json')) {
-    res.send({ message: 'That route does not exist', title: '500: Route Not Found' });
-    return;
-  }
+//   // respond with json
+//   if (req.accepts('json')) {
+//     res.send({ message: 'That route does not exist', title: '500: Route Not Found' });
+//     return;
+//   }
 
-  // default to plain-text. send()
-  res.type('txt').send('Not found');
-});
+//   // default to plain-text. send()
+//   res.type('txt').send('Not found');
+// });
 
 server.listen(port, () => {
   console.log('%s Server is running at http://localhost:%d in %s mode', chalk.green('✓'), port, server.get('env'));
   console.log('  Press CTRL-C to stop\n');
 });
-
 
 export default server;
