@@ -9128,6 +9128,13 @@ a.list-group-item-danger.active:hover, a.list-group-item-danger.active:focus {
   color: #2C3E50; }
 
 /* colors */
+#background {
+  background: url("../images/GIS.jpg") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover; }
+
 footer {
   position: absolute;
   bottom: 0;
@@ -9139,8 +9146,8 @@ footer {
 form {
   position: absolute;
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  right: 0%;
+  transform: translate(0%, -35%);
   display: block;
   width: 100%;
   max-width: 400px;

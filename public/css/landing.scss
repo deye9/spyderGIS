@@ -5,11 +5,21 @@
 
 @import "themes/flatly/flatly";
 
+// Landing pages CSS.
+
 /* colors */
 $darkBlue: #217093;
 $medBlue: #4eb8dd;
 $lightBlue: #ddf1fa;
 $inputBG: #f3fafd;
+
+#background {
+	background: url('../images/GIS.jpg') no-repeat center center fixed; 
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
 
 footer {
 	position:absolute;
@@ -20,7 +30,7 @@ footer {
 }
 
 form {
-	position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+	position: absolute; top: 50%; right: 0%; transform: translate(0%,-35%);
 	display: block; width: 100%; max-width: 400px; background-color: #FFF;
 	margin: 0; padding: 2.25em; box-sizing: border-box; border: solid 1px #DDD; border-radius: .5em;
 	font-family: 'Source Sans Pro', sans-serif;

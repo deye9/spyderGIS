@@ -7,7 +7,7 @@ Special thanks to http://hackathonstarter-sahat.rhcloud.com where i got the boil
 
 A boilerplate for **Node.js** web applications.
 
-Main focus for this web app was on **simplicity** and **ease of use**. Whilst trying to make it as **generic** and **reusable** as possible without being too specific. In the worst case you can use this as a learning guide for your projects, if for example you are only interested in **Sign in with Google** authentication and nothing else.
+Main focus for this web app was on **simplicity** and **ease of use**. Whilst trying to make it as **generic** and **reusable** as possible without being too specific. In the worst case you can use this as a learning guide for your GIS projects, if for example you are only interested in **Sign in with Google** authentication and nothing else.
 
 <h4 align="center">Template used is Flatly Bootstrap Theme</h4>
 

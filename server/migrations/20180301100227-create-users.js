@@ -23,9 +23,49 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      remember_token: {
-        allowNull: true,
-        type: Sequelize.STRING
+      picture: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      passwordResetToken: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      passwordResetExpires: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
+      facebook: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      twitter: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      google: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      github: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      instagram: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      linkedin: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      steam: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      tokens: {
+        type: Sequelize.ARRAY(Sequelize.TEXT),
+        allowNull: true
       },
       created_at: {
         allowNull: false,
