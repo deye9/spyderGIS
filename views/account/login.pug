@@ -1,44 +1,87 @@
-extends ../layout
+extends ../layouts/landing
 
 block content
-  .page-header
-    h3 Sign in
-  form.form-horizontal(method='POST')
-    input(type='hidden', name='_csrf', value=_csrf)
-    .form-group
-      label.col-sm-3.control-label(for='email') Email
-      .col-sm-7
-        input.form-control(type='email', name='email', id='email', placeholder='Email', autofocus, required)
-    .form-group
-      label.col-sm-3.control-label(for='password') Password
-      .col-sm-7
-        input.form-control(type='password', name='password', id='password', placeholder='Password', required)
-    .form-group
-      .col-sm-offset-3.col-sm-7
-        button.col-sm-3.btn.btn-primary(type='submit')
-          i.fa.fa-user
-          | Login
-        a.btn.btn-link(href='/forgot') Forgot your password?
-    .form-group
-      .col-sm-offset-3.col-sm-7
-        hr
-    .form-group
-      .col-sm-offset-3.col-sm-7
-        a.btn.btn-block.btn-facebook.btn-social(href='/auth/facebook')
-          i.fa.fa-facebook
-          | Sign in with Facebook
-        a.btn.btn-block.btn-twitter.btn-social(href='/auth/twitter')
-          i.fa.fa-twitter
-          | Sign in with Twitter
-        a.btn.btn-block.btn-google.btn-social(href='/auth/google')
-          i.fa.fa-google-plus
-          | Sign in with Google
-        a.btn.btn-block.btn-github.btn-social(href='/auth/github')
-          i.fa.fa-github
-          | Sign in with GitHub
-        a.btn.btn-block.btn-linkedin.btn-social(href='/auth/linkedin')
-          i.fa.fa-linkedin
-          | Sign in with LinkedIn
-        a.btn.btn-block.btn-instagram.btn-social(href='/auth/instagram')
-          i.fa.fa-instagram
-          | Sign in with Instagram
+  .middlePage
+  br
+  br
+  br
+  br
+  .panel.panel-info
+    .panel-heading
+      h3.panel-title Please Sign In
+    |   
+    .panel-body
+      .row
+        .col-md-5
+          .form-group
+            a.btn.btn-block.btn-facebook.btn-social(href='/auth/facebook')
+              i.fa.fa-facebook
+              | Sign in with Facebook
+            a.btn.btn-block.btn-twitter.btn-social(href='/auth/twitter')
+              i.fa.fa-twitter
+              | Sign in with Twitter
+            hr
+            a.btn.btn-block.btn-google.btn-social(href='/auth/google')
+              i.fa.fa-google-plus
+              | Sign in with Google
+            a.btn.btn-block.btn-linkedin.btn-social(href='/auth/linkedin')
+              i.fa.fa-linkedin
+              | Sign in with LinkedIn
+        |     
+        .col-md-7(style="border-left:1px solid #ccc;height:auto;")
+          form.form-horizontal(method='POST')
+            input(type='hidden', name='_csrf', value=_csrf)
+            fieldset
+              br
+              .input-group
+                label.input-group-addon(for="email")
+                  i.fa.fa-user
+                | 							
+                input.form-control(type='email', name='email', id='email', placeholder='Email', autofocus, required)
+              hr
+              |   
+              .input-group
+                label.input-group-addon(for="userpassword")
+                  i.fa.fa-user-secret
+                | 							
+                input.form-control(type='password', name='password', id='password', placeholder='Password', required)
+              |
+              br
+              .spacing
+                input#checkboxes-0(type="checkbox", name="checkboxes", value="1")
+                small &nbsp; Remember me
+                a.pull-right(href="/forgot")
+                  small Forgot Password?
+                br
+              |   
+              button#singlebutton.btn.btn-primary.btn-md.pull-right.fa-sign-in(name="singlebutton") &nbsp; Sign In
+  p
+    a(href="https://github.com/arjunkomath") About
+    |  · Arjun
+
+//- | 
+//- .input-group
+//-   span.input-group-addon
+//-     i.fa.fa-user
+//-   | 						
+  input.form-control(type="text", name="username", placeholder="email address")
+
+  //- form.form-horizontal
+  //-   .form-group
+  //-     label.col-sm-3.control-label(for='email') Email
+  //-     .col-sm-7
+  //-       input.form-control()
+  //-   .form-group
+  //-     label.col-sm-3.control-label(for='password') Password
+  //-     .col-sm-7
+  //-       input.form-control()
+  //-   .form-group
+  //-     .col-sm-offset-3.col-sm-7
+  //-       button.col-sm-3.btn.btn-primary(type='submit')
+  //-         i.fa.fa-user
+  //-         | Login
+  //-       a.btn.btn-link(href='/forgot') Forgot your password?
+  //-   .form-group
+  //-     .col-sm-offset-3.col-sm-7
+  //-       hr
+    

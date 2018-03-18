@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import request from 'request';
 import passport from 'passport';
 import Instagram from 'passport-instagram';
+import models from '../models';
 
 dotenv.config();
 
@@ -16,7 +17,7 @@ const OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
 const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
-const User = require('../models/user');
+const User = models.user;
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -32,19 +33,18 @@ passport.deserializeUser((id, done) => {
  * Sign in using Email and Password.
  */
 passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
-  User.findOne({ email: email.toLowerCase() }, (err, user) => {
-    if (err) { return done(err); }
-    if (!user) {
-      return done(null, false, { msg: `Email ${email} not found.` });
-    }
-    user.comparePassword(password, (err, isMatch) => {
-      if (err) { return done(err); }
-      if (isMatch) {
-        return done(null, user);
+  User.findOne({ where: { email: email.toLowerCase() } })
+    .then((existingUser) => {
+      if (!existingUser) {
+        return done(null, false, { msg: `Account with email address ${email} was not found.` });
       }
-      return done(null, false, { msg: 'Invalid email or password.' });
+
+      if (!existingUser.comparePassword(existingUser, password)) {
+        return done(null, false, { msg: 'Invalid email or password.' });
+      }
+
+      return done(null, existingUser);
     });
-  });
 }));
 
 /**
@@ -418,15 +418,15 @@ passport.use('tumblr', new OAuthStrategy({
   callbackURL: '/auth/tumblr/callback',
   passReqToCallback: true
 },
-  (req, token, tokenSecret, profile, done) => {
-    User.findById(req.user._id, (err, user) => {
-      if (err) { return done(err); }
-      user.tokens.push({ kind: 'tumblr', accessToken: token, tokenSecret });
-      user.save((err) => {
-        done(err, user);
-      });
+(req, token, tokenSecret, profile, done) => {
+  User.findById(req.user._id, (err, user) => {
+    if (err) { return done(err); }
+    user.tokens.push({ kind: 'tumblr', accessToken: token, tokenSecret });
+    user.save((err) => {
+      done(err, user);
     });
-  }
+  });
+}
 ));
 
 /**
@@ -440,15 +440,15 @@ passport.use('foursquare', new OAuth2Strategy({
   callbackURL: process.env.FOURSQUARE_REDIRECT_URL,
   passReqToCallback: true
 },
-  (req, accessToken, refreshToken, profile, done) => {
-    User.findById(req.user._id, (err, user) => {
-      if (err) { return done(err); }
-      user.tokens.push({ kind: 'foursquare', accessToken });
-      user.save((err) => {
-        done(err, user);
-      });
+(req, accessToken, refreshToken, profile, done) => {
+  User.findById(req.user._id, (err, user) => {
+    if (err) { return done(err); }
+    user.tokens.push({ kind: 'foursquare', accessToken });
+    user.save((err) => {
+      done(err, user);
     });
-  }
+  });
+}
 ));
 
 /**
@@ -499,15 +499,15 @@ passport.use('pinterest', new OAuth2Strategy({
   callbackURL: process.env.PINTEREST_REDIRECT_URL,
   passReqToCallback: true
 },
-  (req, accessToken, refreshToken, profile, done) => {
-    User.findById(req.user._id, (err, user) => {
-      if (err) { return done(err); }
-      user.tokens.push({ kind: 'pinterest', accessToken });
-      user.save((err) => {
-        done(err, user);
-      });
+(req, accessToken, refreshToken, profile, done) => {
+  User.findById(req.user._id, (err, user) => {
+    if (err) { return done(err); }
+    user.tokens.push({ kind: 'pinterest', accessToken });
+    user.save((err) => {
+      done(err, user);
     });
-  }
+  });
+}
 ));
 
 /**

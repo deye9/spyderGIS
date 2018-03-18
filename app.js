@@ -50,15 +50,13 @@ server.use(session({
   resave: true,
   saveUninitialized: true,
   secret: process.env.SESSION_SECRET
-  // store: new MongoStore({
-  //   url: process.env.MONGODB_URI || process.env.MONGOLAB_URI,
-  //   autoReconnect: true,
-  //   clear_interval: 3600
-  // })
 }));
 server.use(passport.initialize());
 server.use(passport.session());
 server.use(flash());
+server.use((req, res, next) => {
+  lusca.csrf()(req, res, next);
+});
 server.use(lusca.xframe('SAMEORIGIN'));
 server.use(lusca.xssProtection(true));
 server.use((req, res, next) => {

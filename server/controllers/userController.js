@@ -1,6 +1,6 @@
 import bluebird from 'bluebird';
 import passport from 'passport';
-import validator from 'validator';
+import Validator from 'validatorjs';
 import nodemailer from 'nodemailer';
 
 import models from '../models';
@@ -26,29 +26,26 @@ exports.getLogin = (req, res) => {
  * Sign in using email and password.
  */
 exports.postLogin = (req, res, next) => {
-  req.assert('email', 'Email is not valid').isEmail();
-  req.assert('password', 'Password cannot be blank').notEmpty();
-  req.sanitize('email').normalizeEmail({ gmail_remove_dots: false });
+  const body = req.body;
+  const validator = new Validator(body, User.loginRules());
 
-  const errors = req.validationErrors();
+  if (validator.passes()) {
+    passport.authenticate('local', (err, user, info) => {
+      if (err || !user) {
+        req.flash('errors', info);
+        return res.redirect('/login');
+      }
+      // return res.redirect('/account');
 
-  if (errors) {
-    req.flash('errors', errors);
-    return res.redirect('/login');
+      req.logIn(user, (err) => {
+        if (err) {
+          return next(err);
+        }
+
+        return res.redirect('/account');
+      });
+    })(req, res, next);
   }
-
-  passport.authenticate('local', (err, user, info) => {
-    if (err) { return next(err); }
-    if (!user) {
-      req.flash('errors', info);
-      return res.redirect('/login');
-    }
-    req.logIn(user, (err) => {
-      if (err) { return next(err); }
-      req.flash('success', { msg: 'Success! You are logged in.' });
-      res.redirect(req.session.returnTo || '/');
-    });
-  })(req, res, next);
 };
 
 /**
@@ -78,30 +75,28 @@ exports.getSignup = (req, res) => {
  * Create a new local account.
  */
 exports.postSignup = (req, res, next) => {
-  User.create({
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-    email: req.body.email,
-    password: req.body.password
-  });
+  const body = req.body;
+  const validator = new Validator(body, User.createRules());
 
-  User.findOne({ email: req.body.email }, (err, existingUser) => {
-    if (err) { return next(err); }
-    if (existingUser) {
-      req.flash('errors', { msg: 'Account with that email address already exists.' });
-      return res.redirect('/signup');
-    }
-
-    User.save((err) => {
-      if (err) { return next(err); }
-      req.logIn(User, (err) => {
-        if (err) {
-          return next(err);
+  if (validator.passes()) {
+    User.findOne({ where: { email: req.body.email } })
+      .then((existingUser) => {
+        if (existingUser) {
+          req.flash('errors', { msg: `Account with that email address {${  req.body.email  }} already exists.` });
+          return res.redirect('/signup');
         }
-        res.redirect('/');
+
+        User.create({
+          firstname: req.body.firstname,
+          lastname: req.body.lastname,
+          email: req.body.email.toLowerCase(),
+          password: req.body.password
+        })
+          .then((newUser) => {
+            res.redirect('/login');
+          });
       });
-    });
-  });
+  }
 };
 
 /**

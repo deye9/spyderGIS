@@ -191,18 +191,20 @@ function getPosition(el) {
   };
 }
 
-firstname.addEventListener('focus', onEmailFocus);
-firstname.addEventListener('blur', onEmailBlur);
-firstname.addEventListener('input', onEmailInput);
+if ($('#firstname').length) {
+  firstname.addEventListener('focus', onEmailFocus);
+  firstname.addEventListener('blur', onEmailBlur);
+  firstname.addEventListener('input', onEmailInput);
 
-lastname.addEventListener('focus', onEmailFocus);
-lastname.addEventListener('blur', onEmailBlur);
-lastname.addEventListener('input', onEmailInput);
+  lastname.addEventListener('focus', onEmailFocus);
+  lastname.addEventListener('blur', onEmailBlur);
+  lastname.addEventListener('input', onEmailInput);
 
-email.addEventListener('focus', onEmailFocus);
-email.addEventListener('blur', onEmailBlur);
-email.addEventListener('input', onEmailInput);
-password.addEventListener('focus', onPasswordFocus);
-password.addEventListener('blur', onPasswordBlur);
-TweenMax.set(armL, {x: -93, y: 220, rotation: 105, transformOrigin: "top left"});
-TweenMax.set(armR, {x: -93, y: 220, rotation: -105, transformOrigin: "top right"});
+  email.addEventListener('focus', onEmailFocus);
+  email.addEventListener('blur', onEmailBlur);
+  email.addEventListener('input', onEmailInput);
+  password.addEventListener('focus', onPasswordFocus);
+  password.addEventListener('blur', onPasswordBlur);
+  TweenMax.set(armL, {x: -93, y: 220, rotation: 105, transformOrigin: "top left" });
+  TweenMax.set(armR, {x: -93, y: 220, rotation: -105, transformOrigin: "top right"});
+}
