@@ -1,19 +1,15 @@
 // Module dependencies.
 import path from 'path';
-import chalk from 'chalk';
 import lusca from 'lusca';
 import multer from 'multer';
-import logger from 'morgan';
 import dotenv from 'dotenv';
 import express from 'express';
-import passport from 'passport';
 import flash from 'express-flash';
 import bodyParser from 'body-parser';
-import compression from 'compression';
 import session from 'express-session';
 import sass from 'node-sass-middleware';
 import errorHandler from 'errorhandler';
-import expressValidator from 'express-validator';
+import cookieParser from 'cookie-parser';
 import routes from './server/routes/routes';
 
 dotenv.config();
@@ -28,43 +24,47 @@ const port = parseInt(process.env.PORT, 10) || 1981;
 // Set up defaults
 const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
-// API keys and Passport configuration.
-// const passportConfig = require('./server/config/passport');
-
 // Express configuration.
-server.use(compression());
 server.set('view engine', 'pug');
 server.use(sass({
   src: path.join(__dirname, 'public'),
   dest: path.join(__dirname, 'public')
 }));
 
-// Log requests to the console
-server.use(logger('dev'));
-
 // Parse incoming request data
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
-server.use(expressValidator());
+server.use(cookieParser(process.env.SESSION_SECRET));
+
+const cookieExpirationDate = new Date();
+const cookieExpirationDays = 365;
+cookieExpirationDate.setDate(cookieExpirationDate.getDate() + cookieExpirationDays);
+
 server.use(session({
-  resave: true,
+  secret: process.env.SESSION_SECRET,
   saveUninitialized: true,
-  secret: process.env.SESSION_SECRET
+  resave: true,
+  cookie: {
+    httpOnly: true,
+    expires: cookieExpirationDate // use expires instead of maxAge
+  }
 }));
-server.use(passport.initialize());
-server.use(passport.session());
 server.use(flash());
 server.use((req, res, next) => {
   lusca.csrf()(req, res, next);
 });
 server.use(lusca.xframe('SAMEORIGIN'));
 server.use(lusca.xssProtection(true));
+server.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
+
+// This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.
+// This usually happens when you stop your express server after login, your cookie still remains saved in the browser.
 server.use((req, res, next) => {
-  res.locals.user = req.user;
+  if (req.cookies.user_sid && !req.session.user) {
+    res.clearCookie('user_sid');
+  }
   next();
 });
-
-server.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 
 // Error Handler.
 server.use(errorHandler());
@@ -115,8 +115,8 @@ server.use((req, res) => {
 });
 
 server.listen(port, () => {
-  console.log('%s Server is running at http://localhost:%d in %s mode', chalk.green('✓'), port, server.get('env'));
-  console.log('  Press CTRL-C to stop\n');
+  console.log('Server is running at http://localhost:%d in %s mode', port, server.get('env'));
+  console.log('Press CTRL-C to stop\n');
 });
 
 export default server;

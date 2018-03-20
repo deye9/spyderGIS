@@ -33,7 +33,7 @@ passport.deserializeUser((id, done) => {
  * Sign in using Email and Password.
  */
 passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
-  User.findOne({ where: { email: email.toLowerCase() } })
+  User.findOne({ where: { email: email } })
     .then((existingUser) => {
       if (!existingUser) {
         return done(null, false, { msg: `Account with email address ${email} was not found.` });
@@ -532,3 +532,5 @@ exports.isAuthorized = (req, res, next) => {
     res.redirect(`/auth/${provider}`);
   }
 };
+
+exports.passport = passport;

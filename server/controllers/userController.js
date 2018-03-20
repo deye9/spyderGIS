@@ -1,12 +1,12 @@
-import bluebird from 'bluebird';
-import passport from 'passport';
+// import bluebird from 'bluebird';
+// import passport from 'passport';
 import Validator from 'validatorjs';
 import nodemailer from 'nodemailer';
 
 import models from '../models';
 
 const User = models.user;
-const crypto = bluebird.promisifyAll(require('crypto'));
+// const crypto = bluebird.promisifyAll(require('crypto'));
 
 /**
  * GET /login
@@ -25,26 +25,26 @@ exports.getLogin = (req, res) => {
  * POST /login
  * Sign in using email and password.
  */
-exports.postLogin = (req, res, next) => {
+exports.postLogin = (req, res) => {
   const body = req.body;
   const validator = new Validator(body, User.loginRules());
 
   if (validator.passes()) {
-    passport.authenticate('local', (err, user, info) => {
-      if (err || !user) {
-        req.flash('errors', info);
-        return res.redirect('/login');
-      }
-      // return res.redirect('/account');
-
-      req.logIn(user, (err) => {
-        if (err) {
-          return next(err);
+    User.findOne({ where: { email: body.email } })
+      .then((user) => {
+        if (!user) {
+          req.flash('errors', `Account with email address ${body.email} was not found.`);
+          res.redirect('/login');
+        } else if (!user.comparePassword(user, body.password)) {
+          req.flash('errors', 'Invalid password.');
+          res.redirect('/login');
+        } else {
+          req.session.user_sid = user.id;
+          req.session.useremail = user.email;
+          req.session.user = user.dataValues;
+          res.redirect('/contact');
         }
-
-        return res.redirect('/account');
       });
-    })(req, res, next);
   }
 };
 

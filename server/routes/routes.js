@@ -1,12 +1,19 @@
-// Controllers (route handlers).
 import homeController from '../controllers/homeController';
 import userController from '../controllers/userController';
 // import apiController from '../controllers/apiController';
 import contactController from '../controllers/contactController';
 // import authMiddleware from '../middleware/auth';
 
-// API keys and Passport configuration.
-const passportConfig = require('../config/passport');
+// https://www.codementor.io/emjay/how-to-build-a-simple-session-based-authentication-system-with-nodejs-from-scratch-6vn67mcy3
+
+// Middleware function to check for logged-in users.
+const sessionChecker = (req, res, next) => {
+  if (req.session.user && !req.cookies.user_sid) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
+};
 
 const routes = (router) => {
 //   router.get('/api/v1', (req, res) => {
@@ -21,19 +28,20 @@ const routes = (router) => {
   router.get('/login', userController.getLogin);
   router.get('/forgot', userController.getForgot);
   router.get('/signup', userController.getSignup);
-  router.get('/contact', contactController.getContact);
+  router.get('/contact', sessionChecker, contactController.getContact);
   router.get('/reset/:token', userController.getReset);
-  router.get('/account', passportConfig.isAuthenticated, userController.getAccount);
-  router.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
+  router.get('/account', sessionChecker, userController.getAccount);
+  router.get('/dashboard', homeController.getDashboard);
+  router.get('/account/unlink/:provider', sessionChecker, userController.getOauthUnlink);
 
   router.post('/login', userController.postLogin);
   router.post('/forgot', userController.postForgot);
   router.post('/reset/:token', userController.postReset);
   router.post('/signup', userController.postSignup);
   router.post('/contact', contactController.postContact);
-  router.post('/account/profile', passportConfig.isAuthenticated, userController.postUpdateProfile);
-  router.post('/account/password', passportConfig.isAuthenticated, userController.postUpdatePassword);
-  router.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
+  router.post('/account/profile', sessionChecker, userController.postUpdateProfile);
+  router.post('/account/password', sessionChecker, userController.postUpdatePassword);
+  router.post('/account/delete', sessionChecker, userController.postDeleteAccount);
 
   // router.get('*', (req, res) =>
   //   res.status(404).send({

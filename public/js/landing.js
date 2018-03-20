@@ -84,7 +84,7 @@ function getCoord(e) {
 };
 
 function onEmailInput(e) {
-  getCoord(e);
+  // getCoord(e);
   var value = e.target.value;
   curEmailIndex = value.length;
 	
@@ -121,7 +121,7 @@ function onEmailInput(e) {
 
 function onEmailFocus(e) {
   e.target.parentElement.classList.add("focusWithText");
-  getCoord();
+  // getCoord();
 }
 
 function onEmailBlur(e) {
