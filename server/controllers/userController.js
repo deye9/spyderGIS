@@ -1,12 +1,9 @@
-// import bluebird from 'bluebird';
-// import passport from 'passport';
+import jwt from 'jsonwebtoken';
 import Validator from 'validatorjs';
 import nodemailer from 'nodemailer';
-
 import models from '../models';
 
 const User = models.user;
-// const crypto = bluebird.promisifyAll(require('crypto'));
 
 /**
  * GET /login
@@ -39,6 +36,11 @@ exports.postLogin = (req, res) => {
           req.flash('errors', 'Invalid password.');
           res.redirect('/login');
         } else {
+          // const token = jwt.sign(user, process.env.SESSION_SECRET);
+          const token = jwt.sign({
+            UserId: user.id,
+          }, process.env.SESSION_SECRET, { expiresIn: '24 hours' });
+          console.log(token);
           req.session.user_sid = user.id;
           req.session.useremail = user.email;
           req.session.user = user.dataValues;

@@ -3,7 +3,9 @@ password = document.querySelector('#password'), mySVG = document.querySelector('
 var caretPos, curEmailIndex, screenCenter, svgCoords, eyeMaxHorizD = 20, eyeMaxVertD = 10, noseMaxHorizD = 23, noseMaxVertD = 10, dFromC, eyeDistH, eyeLDistV, eyeRDistV, eyeDistR, mouthStatus = "small";
 
 function getCoord(e) {
-  email = document.querySelector('#' + e.srcElement.id);
+  if (typeof e !== 'undefined') {
+    email = document.querySelector('#' + e.srcElement.id);
+  }
   var carPos = email.selectionEnd, div = document.createElement('div'), span = document.createElement('span'), copyStyle = getComputedStyle(email), emailCoords = {}, caretCoords = {}, centerCoords = {};
   [].forEach.call(copyStyle, function(prop){
     div.style[prop] = copyStyle[prop];
@@ -84,7 +86,7 @@ function getCoord(e) {
 };
 
 function onEmailInput(e) {
-  // getCoord(e);
+  getCoord(e);
   var value = e.target.value;
   curEmailIndex = value.length;
 	
@@ -121,7 +123,7 @@ function onEmailInput(e) {
 
 function onEmailFocus(e) {
   e.target.parentElement.classList.add("focusWithText");
-  // getCoord();
+  getCoord();
 }
 
 function onEmailBlur(e) {
