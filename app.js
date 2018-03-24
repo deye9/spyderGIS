@@ -1,4 +1,5 @@
 // Module dependencies.
+// import cors from 'cors';
 import path from 'path';
 import lusca from 'lusca';
 import multer from 'multer';
@@ -25,6 +26,7 @@ const port = parseInt(process.env.PORT, 10) || 1981;
 const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
 // Express configuration.
+// server.use(cors());
 server.set('view engine', 'pug');
 server.use(sass({
   src: path.join(__dirname, 'public'),
@@ -57,11 +59,10 @@ server.use(lusca.xframe('SAMEORIGIN'));
 server.use(lusca.xssProtection(true));
 server.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 
-// This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.
-// This usually happens when you stop your express server after login, your cookie still remains saved in the browser.
+// This middleware will check if user's access token is still available.
 server.use((req, res, next) => {
-  if (req.cookies.user_sid && !req.session.user) {
-    res.clearCookie('user_sid');
+  if (req.session.accessToken) {
+    res.setHeader('x-access-token', req.session.accessToken);
   }
   next();
 });

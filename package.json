@@ -14,9 +14,10 @@
     "test": "mocha --reporter spec",
     "postinstall": "npm rebuild node-sass",
     "babel": "babel-watch --watch ./views app.js",
-    "sass": "node-sass ./public/css/ -o ./public/css/"
+    "sass": "node-sass ./public/css/main.scss -o ./public/css/main"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.17.0",
     "babel-loader": "^6.2.5",
@@ -31,6 +32,7 @@
     "clockwork": "^0.1.4",
     "compression": "^1.7.2",
     "cookie-parser": "^1.4.3",
+    "cors": "^2.8.4",
     "dotenv": "^4.0.0",
     "errorhandler": "^1.5.0",
     "express": "^4.16.2",

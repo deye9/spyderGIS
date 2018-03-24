@@ -105,46 +105,36 @@ html
         ul.list-unstyled.components
           li
             a.clickable(href="#", data-mother="lga", data-rename="'thelga':'LGA','stateid':'StateID'", data-key="lga_sn") LGA
-          |                         
           li
             a.clickable(href="#", data-mother="primary", data-rename="'pry_category':'Category','status':'Status'", data-key="pry_sn") Primary
-          |                         
           li
             a.clickable(href="#", data-mother="drainage", data-rename="'drainagedesc':'Drainage Description'", data-key="sn_drain") Drainage
-          |                         
-          li
-            a.clickable(href="#", data-mother="buildingtype", data-rename="'type_desc':'Description'", data-key="bldg_id") Building Type
-          |                         
-          li
-            a.clickable(href="#", data-mother="refusedisposal", data-rename="'collectiondesc':'Collection Description','status':'Status'", data-key="rf_sn") Refuse Disposal
-          |                         
-          li
-            a.clickable(href="#", data-mother="roadcarriagetype", data-rename="'carriagedesc':'Road Carriage Description','status':'Status'", data-key="rd_sn") Road Carriage Type
-          |                         
-          li
-            a.clickable(href="#", data-mother="roadcondition", data-rename="'conditiondesc':'Road Condition Description'", data-key="cnd_sn") Road Condition
-          |                         
-          li
-            a.clickable(href="#", data-mother="roadfeature", data-rename="'featuredesc':'Road Feature Description'", data-key="ftre_sn") Road Feature
-          |                         
-          li
-            a.clickable(href="#", data-mother="roadsurface", data-rename="'surfacedesc':'Road Surface Description'", data-key="surf_sn") Road Surface
-          |                         
-          li
-            a.clickable(href="#", data-mother="roadtype", data-rename="'typedesc':'Road Type Description'", data-key="type_sn") Road Type
-          |                         
           li
             a.clickable(href="#", data-mother="secondary", data-rename="'sec_category':'Secondary Category','pry_category':'Primary Category','status':'Status'", data-key="sec_sn") Secondary
-          |                         
+          li
+            a.clickable(href="#", data-mother="roadtype", data-rename="'typedesc':'Road Type Description'", data-key="type_sn") Road Type
           li
             a.clickable(href="#", data-mother="sitecondition", data-rename="'conditiondesc':'Site Condition Description'", data-key="site_sn") Site Condition
-          |                         
+          li
+            a.clickable(href="#", data-mother="roadsurface", data-rename="'surfacedesc':'Road Surface Description'", data-key="surf_sn") Road Surface
+          li
+            a.clickable(href="#", data-mother="roadfeature", data-rename="'featuredesc':'Road Feature Description'", data-key="ftre_sn") Road Feature
+          li
+            a.clickable(href="#", data-mother="buildingtype", data-rename="'type_desc':'Description'", data-key="bldg_id") Building Type
+          li
+            a.clickable(href="#", data-mother="refusedisposal", data-rename="'collectiondesc':'Collection Description','status':'Status'", data-key="rf_sn") Refuse Disposal
+          li
+            a.clickable(href="#", data-mother="roadcondition", data-rename="'conditiondesc':'Road Condition Description'", data-key="cnd_sn") Road Condition
           li
             a.clickable(href="#", data-mother="streetfurniture", data-rename="'furnituredesc':'Street Furniture Description'", data-key="str_sn") Street Furniture
-
+          li
+            a.clickable(href="#", data-mother="roadcarriagetype", data-rename="'carriagedesc':'Road Carriage Description','status':'Status'", data-key="rd_sn") Road Carriage Type
       #content
         include ../partials/header
+        h1 Spyder Geographic Information System
+        p.lead(name="pgHeader" id="pgHeader") A boilerplate for Node.js web applications.
         include ../partials/flash
+        hr
         block content
     include ../partials/footer
 

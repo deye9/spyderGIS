@@ -33,8 +33,5 @@ nav.navbar.navbar-default.navbar-static-top(style="border-bottom: 1px solid #7c0
             |                                         
             br
             |                                         
-            a(href="https://wura.dev/logout", onclick="event.preventDefault(); document.getElementById('logout-form').submit();")
+            a(href="/logout")
               i.fa.fa-sign-out(aria-hidden="true")  Logout 
-          |                                     
-          form#logout-form(action="https://wura.dev/logout", method="POST", style="display: none;")
-            input(type="hidden", name="_token", value="fNHXnw9xnAje4CLcpmZhEvFzVF1uaC51RFnpt0hg")
