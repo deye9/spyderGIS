@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'; // used to create, sign, and verify tokens
 import models from '../models';
 
 dotenv.config();
-const User = models.user;
+const User = models.User;
 const secret = process.env.SECRET_TOKEN;
 
 const auth = {
@@ -36,9 +36,9 @@ const auth = {
     }
   },
   verifyUser(req, res, next) {
-    User.findById(req.params.id)
+    User.findById(req.decoded.UserID)
       .then((user) => {
-        if (!user) {
+        if (user) {
           req.user = user;
           return next();
         }

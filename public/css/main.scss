@@ -63,14 +63,8 @@ $inputBG: #f3fafd;
     color: white;
 }
 
-.btn-wura:hover {
-    color: #fff;
-    background-color: #1e0015;
-    border-color: #7c0e3b;
-}
-
 .btn-default {
-    color: white;
+    color: #000;
     background-color: transparent;
     border-color: transparent;
 }
@@ -111,8 +105,13 @@ p {
     color: #999;
 }
 
-a, a:hover, a:focus {
-    color: inherit;
+a {
+    color: #fff;
+    text-decoration: none;
+}
+
+a:hover, a:focus {
+    color: #18BC9C;
     text-decoration: none;
 }
 
@@ -153,7 +152,7 @@ i, span {
 #sidebar {
     min-width: 250px;
     max-width: 250px;
-    background: #7c0e3b;
+    background: #2C3E50;
     color: #fff;
 }
 
@@ -264,6 +263,16 @@ i, span {
     padding-left: 30px;
 }
 
+#sidebar ul.components > li > a:hover, a:focus {
+    color: #18BC9C;
+    border: 1px solid;
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, .5), 0 0 20px rgba(255, 255, 255, .2);
+    outline-color: rgba(255, 255, 255, 0);
+    outline-offset: 15px;
+    text-shadow: 1px 1px 2px #427388; 
+    text-decoration: none;
+}
+
 #sidebar ul li a i {
     font-size: 1.6em;
     margin-right: 10px;
@@ -322,7 +331,7 @@ a.article, a.article:hover {
     color: #bc0050;
     padding: 20px;
     min-height: 100vh;
-    background-color: #1e0015;
+    background-color: #fff;
 }
 
 #content input {

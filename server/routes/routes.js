@@ -1,22 +1,29 @@
 import authMiddleWare from '../middleware/auth';
 import homeController from '../controllers/homeController';
 import userController from '../controllers/userController';
+import metadataController from '../api/metadataController';
 // import apiController from '../controllers/apiController';
 import contactController from '../controllers/contactController';
 
 // https://www.codementor.io/emjay/how-to-build-a-simple-session-based-authentication-system-with-nodejs-from-scratch-6vn67mcy3
 
 const routes = (router) => {
+  router.get('/api', (req, res) => {
+    res.json({
+      status: 'Welcome to SPYDER GIS API'
+    });
+  });
+
   // Primary app routes.
   router.get('/', homeController.index);
   router.get('/logout', userController.logout);
   router.get('/login', userController.getLogin);
   router.get('/forgot', userController.getForgot);
   router.get('/signup', userController.getSignup);
-  router.get('/contact', authMiddleWare.verifyToken, contactController.getContact);
+  router.get('/contact', contactController.getContact);
   router.get('/reset/:token', userController.getReset);
   router.get('/account', authMiddleWare.verifyToken, userController.getAccount);
-  router.get('/dashboard', authMiddleWare.verifyToken, homeController.getDashboard);
+  router.get('/dashboard', authMiddleWare.verifyToken, authMiddleWare.verifyUser, homeController.getDashboard);
   router.get('/account/unlink/:provider', authMiddleWare.verifyToken, userController.getOauthUnlink);
 
   router.post('/login', userController.postLogin);
@@ -28,18 +35,17 @@ const routes = (router) => {
   router.post('/account/password', authMiddleWare.verifyToken, userController.postUpdatePassword);
   router.post('/account/delete', authMiddleWare.verifyToken, userController.postDeleteAccount);
 
-  //   router.get('/api/v1', (req, res) => {
-//     res.json({
-//       status: 'Welcome to SPYDER GIS API'
-//     });
-//   });
+  router.route('/api/metadata/:category')
+    .put(authMiddleWare.verifyToken, authMiddleWare.verifyUser, metadataController.update)
+    .get(authMiddleWare.verifyToken, authMiddleWare.verifyUser, metadataController.retrieve)
+    .delete(authMiddleWare.verifyToken, authMiddleWare.verifyUser, metadataController.destroy)
+    .post(authMiddleWare.verifyToken, authMiddleWare.verifyUser, metadataController.create);
 
-  // router.get('*', (req, res) =>
-  //   res.status(404).send({
-  //     message: 'That route does not exist'
-  //   })
-  // );
-
+  router.get('*', (req, res) =>
+    res.status(404).send({
+      message: 'That route does not exist'
+    })
+  );
   //   router.route('/users/signup')
 //     /** POST api/v1/users/signup - Create a new user */
 //     .post(userController.create);
@@ -76,20 +82,6 @@ const routes = (router) => {
 //      * POST api/v1/recipes - Create a new recipe
 //      */
 //     .post(authMiddleware.verifyToken, recipeController.create);
-
-//   router.route('/recipes/:recipeId')
-//     /**
-//      * PUT api/v1/recipes/:recipeId - Update an existing recipe
-//      */
-//     .put(authMiddleware.verifyToken, recipeController.update)
-//     /**
-//        * GET api/v1/recipes/:recipeId - Get a recipe
-//        */
-//     .get(authMiddleware.verifyToken, recipeController.retrieve)
-//   /**
-//        * DELETE api/v1/recipes/:recipeID - Delete a recipe
-//        */
-//     .delete(authMiddleware.verifyToken, recipeController.destroy);
 
 //   router.route('/recipes/:recipeId/reviews')
 //     /**

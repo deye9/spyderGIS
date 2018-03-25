@@ -3,35 +3,34 @@ nav.navbar.navbar-default.navbar-static-top(style="border-bottom: 1px solid #7c0
     .navbar-header
       button#sidebarCollapse.btn.btn-default.navbar-btn(type="button")
         i.glyphicon.glyphicon-align-justify
-      |                             
+      |
       a.btn.btn-default.navbar-btn(href="https://wura.dev/reminders", title="View all reminders.")
-        i.fa.fa-bell-o(style="color:white;")
-      |                             
+        i.fa.fa-bell-o
+      |
       a.btn.btn-default.navbar-btn(href="https://wura.dev/chats", title="View all chats.")
         i.fa.fa-comment-o
-      |                             
+      |
       a.btn.btn-default.navbar-btn(href="https://wura.dev/calendar", title="View all your Calendar Events.")
-        i.fa.fa-calendar(style="color:white;")
-      |                             
-      |                             
+        i.fa.fa-calendar
+      |
       a.btn.btn-default.navbar-btn(href="https://wura.dev/messages", title="View all messages.")
         i.fa.fa-envelope-o
-      |                             
+      |
       a.btn.btn-default.navbar-btn(href="https://wura.dev/auditlog", title="Audit Log / Historicals.")
         i.fa.fa-history
-      |                             
+      |
       button.btn.btn-default.navbar-btn(title="Search.", data-toggle="modal", data-target="#searchModal")
         i.glyphicon.glyphicon-search
-    |                         
+    |
     #bs-example-navbar-collapse-1.collapse.navbar-collapse
       ul.nav.navbar-nav.navbar-right
         li
           img(src="https://api.randomuser.me/portraits/thumb/men/40.jpg", style="width:45px; height:45px; margin-top:-15px; padding-right:4px;", alt="Adegbenga Adeye's Logo'")
           |                                     
           span
-            i.standout req.session.useremail
+            i.standout Adegbenga A. Adeye 
             |                                         
             br
             |                                         
             a(href="/logout")
-              i.fa.fa-sign-out(aria-hidden="true")  Logout 
+              i.fa.fa-sign-out(aria-hidden="true" style="color:black;")  Logout 

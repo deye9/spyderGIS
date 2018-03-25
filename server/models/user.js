@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt-nodejs';
 
 const userModel = (sequelize, DataTypes) => {
-  const User = sequelize.define('user', {
+  const User = sequelize.define('User', {
     firstname: {
       type: DataTypes.STRING(30),
       allowNull: false
@@ -67,10 +67,18 @@ const userModel = (sequelize, DataTypes) => {
       allowNull: true
     } },
   {
-    timestamps: true,
     paranoid: true,
+    timestamps: true,
+    tableName: 'users',
     underscored: true
   });
+
+  User.associate = (models) => {
+    User.hasMany(models.Metadata, {
+      foreignKey: 'created_by',
+      as: 'meta'
+    });
+  };
 
   /**
     * Method for comparing passwords

@@ -4,11 +4,10 @@ import nodemailer from 'nodemailer';
 import models from '../models';
 import authMiddleWare from '../middleware/auth';
 
-const User = models.user;
+const User = models.User;
 const crypto = bluebird.promisifyAll(require('crypto'));
 
 const userController = {
-
   /**
    * GET /login
    * Login page.
@@ -29,9 +28,8 @@ const userController = {
   postLogin(req, res) {
     const body = req.body;
     const validator = new Validator(body, User.loginRules());
-
     if (validator.passes()) {
-      User.findOne({ where: { email: body.email } })
+      User.findOne({ where: { email: body.email.toLowerCase() } })
         .then((user) => {
           if (!user) {
             req.flash('errors', `Account with email address ${body.email} was not found.`);
@@ -78,9 +76,8 @@ const userController = {
   postSignup(req, res) {
     const body = req.body;
     const validator = new Validator(body, User.createRules());
-
     if (validator.passes()) {
-      User.findOne({ where: { email: req.body.email } })
+      User.findOne({ where: { email: body.email.toLowerCase() } })
         .then((existingUser) => {
           if (existingUser) {
             req.flash('errors', { msg: `Account with that email address {${req.body.email}} already exists.` });

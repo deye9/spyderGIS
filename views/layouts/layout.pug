@@ -10,6 +10,8 @@ html
     link(rel='shortcut icon', href='/favicon.png')
     //- link(href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css")
     //- link(href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.1.0/font-awesome-animation.min.css" rel="stylesheet" type="text/css")
+    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css")
+    link(href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css" rel="stylesheet" type="text/css")
     link(rel='stylesheet', href='/css/main.css')
     style.
       .navbar {
@@ -46,6 +48,33 @@ html
         border-color: transparent;
         border-image: initial;
         border-radius: 0px;
+      }
+      div.dataTables_wrapper div.dataTables_length label, div.dataTables_wrapper div.dataTables_filter label {
+        color: inherit;
+        text-align: left;
+        //- font-weight: normal;
+        white-space: nowrap;
+      }
+      th {
+        color: #bc0050;
+      }
+      th, td {
+        color: #2C3E50;
+        text-align: center;
+        font-weight: inherit;
+      }
+      .pagination > .disabled > span, .pagination > .disabled > span:hover, .pagination > .disabled > span:focus, .pagination > .disabled > a, .pagination > .disabled > a:hover, .pagination > .disabled > a:focus {
+        color: #ecf0f1;
+        background-color: skyblue;
+        border-color: transparent;
+        cursor: not-allowed;
+      }
+      .pagination > .active > a, .pagination > .active > a:hover, .pagination > .active > a:focus, .pagination > .active > span, .pagination > .active > span:hover, .pagination > .active > span:focus {
+        z-index: 3;
+        color: #fff;
+        background-color: #337ab7;
+        border-color: transparent;
+        cursor: default;
       }
       //- .dataTables_wrapper .dataTables_length {
       //- float: left;
@@ -102,43 +131,47 @@ html
                         |                                                 
                         path#Fill-19(d="M86.0160226,3.47656547 L86.4341963,3.47656547 C86.85237,3.47656547 87.1314038,3.32460516 87.1314038,2.93169537 C87.1314038,2.55122898 86.8904543,2.41208914 86.396112,2.41208914 L86.0160226,2.41208914 L86.0160226,3.47656547 Z M87.0047074,3.89473914 L87.9424873,5.36532281 L87.1438472,5.36532281 L86.3580276,4.00899217 L86.0160226,4.00899217 L86.0160226,5.36532281 L85.344079,5.36532281 L85.344079,1.87966243 L86.3071228,1.87966243 C87.3342689,1.87966243 87.8286113,2.22204448 87.8286113,2.93169537 C87.8286113,3.43848112 87.4734088,3.7555993 87.0047074,3.89473914 L87.0047074,3.89473914 Z M89.0073407,3.6669872 C89.0073407,2.15831918 87.9553077,1.04293803 86.4722807,1.04293803 C85.0397813,1.04293803 83.9624845,2.15831918 83.9624845,3.6669872 C83.9624845,5.18772155 85.0397813,6.27783883 86.4722807,6.27783883 C87.9553077,6.27783883 89.0073407,5.17527815 89.0073407,3.6669872 L89.0073407,3.6669872 Z M89.6664638,3.6669872 C89.6664638,5.4414915 88.2848693,6.86117035 86.4722807,6.86117035 C84.7102198,6.86117035 83.3161819,5.4539349 83.3161819,3.6669872 C83.3161819,1.90492631 84.7102198,0.459983581 86.4722807,0.459983581 C88.2848693,0.459983581 89.6664638,1.89248291 89.6664638,3.6669872 L89.6664638,3.6669872 Z")
         |                 
-        ul.list-unstyled.components
+        ul#navlinks.list-unstyled.components
           li
-            a.clickable(href="#", data-mother="lga", data-rename="'thelga':'LGA','stateid':'StateID'", data-key="lga_sn") LGA
+            a.clickable(href="#", data-api="lga", data-rename="'thelga':'LGA','stateid':'StateID'") LGA
           li
-            a.clickable(href="#", data-mother="primary", data-rename="'pry_category':'Category','status':'Status'", data-key="pry_sn") Primary
+            a.clickable(href="#", data-api="primary", data-rename="'pry_category':'Category','status':'Status'") Primary
           li
-            a.clickable(href="#", data-mother="drainage", data-rename="'drainagedesc':'Drainage Description'", data-key="sn_drain") Drainage
+            a.clickable(href="#", data-api="metadata", data-rename="'drainagedesc':'Drainage Description'") Drainage
           li
-            a.clickable(href="#", data-mother="secondary", data-rename="'sec_category':'Secondary Category','pry_category':'Primary Category','status':'Status'", data-key="sec_sn") Secondary
+            a.clickable(href="#", data-api="secondary", data-rename="'sec_category':'Secondary Category','pry_category':'Primary Category','status':'Status'") Secondary
           li
-            a.clickable(href="#", data-mother="roadtype", data-rename="'typedesc':'Road Type Description'", data-key="type_sn") Road Type
+            a.clickable(href="#", data-api="metadata", data-rename="'typedesc':'Road Type Description'") Road Type
           li
-            a.clickable(href="#", data-mother="sitecondition", data-rename="'conditiondesc':'Site Condition Description'", data-key="site_sn") Site Condition
+            a.clickable(href="#", data-api="metadata", data-rename="'conditiondesc':'Site Condition Description'") Site Condition
           li
-            a.clickable(href="#", data-mother="roadsurface", data-rename="'surfacedesc':'Road Surface Description'", data-key="surf_sn") Road Surface
+            a.clickable(href="#", data-api="metadata", data-rename="'surfacedesc':'Road Surface Description'") Road Surface
           li
-            a.clickable(href="#", data-mother="roadfeature", data-rename="'featuredesc':'Road Feature Description'", data-key="ftre_sn") Road Feature
+            a.clickable(href="#", data-api="metadata", data-rename="'featuredesc':'Road Feature Description'") Road Feature
           li
-            a.clickable(href="#", data-mother="buildingtype", data-rename="'type_desc':'Description'", data-key="bldg_id") Building Type
+            a.clickable(href="#", data-api="metadata", data-rename="'type_desc':'Description'") Building Type
           li
-            a.clickable(href="#", data-mother="refusedisposal", data-rename="'collectiondesc':'Collection Description','status':'Status'", data-key="rf_sn") Refuse Disposal
+            a.clickable(href="#", data-api="metadata", data-rename="'collectiondesc':'Collection Description','status':'Status'") Refuse Disposal
           li
-            a.clickable(href="#", data-mother="roadcondition", data-rename="'conditiondesc':'Road Condition Description'", data-key="cnd_sn") Road Condition
+            a.clickable(href="#", data-api="metadata", data-rename="'conditiondesc':'Road Condition Description'") Road Condition
           li
-            a.clickable(href="#", data-mother="streetfurniture", data-rename="'furnituredesc':'Street Furniture Description'", data-key="str_sn") Street Furniture
+            a.clickable(href="#", data-api="metadata", data-rename="'furnituredesc':'Street Furniture Description'") Street Furniture
           li
-            a.clickable(href="#", data-mother="roadcarriagetype", data-rename="'carriagedesc':'Road Carriage Description','status':'Status'", data-key="rd_sn") Road Carriage Type
+            a.clickable(href="#", data-api="metadata", data-rename="'carriagedesc':'Road Carriage Description','status':'Status'") Road Carriage Type
       #content
         include ../partials/header
         h1 Spyder Geographic Information System
         p.lead(name="pgHeader" id="pgHeader") A boilerplate for Node.js web applications.
         include ../partials/flash
         hr
-        block content
+        .row#pgcontent
+          block content
     include ../partials/footer
 
     script(src='/js/lib/jquery-3.1.1.min.js')
     script(src='/js/lib/bootstrap.min.js')
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.4/TweenMax.min.js')
-    script(src='/js/landing.js')
+    script(src='https://unpkg.com/axios/dist/axios.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js')
+    script(src='https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js')
+    script(src='https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js')
+    script(src='/js/main.js')

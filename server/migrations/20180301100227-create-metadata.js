@@ -20,6 +20,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.ENUM('Building Type', 'Drainage Description', 'Collection Description', 'Road Carriage Description', 'Road Condition', 'Road Feature', 'Road Surface', 'Street Furniture', 'Primary Category', 'Road Type', 'Site Condition', 'Secondary')
       },
+      created_by: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE
