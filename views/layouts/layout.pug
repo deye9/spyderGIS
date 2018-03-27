@@ -9,7 +9,7 @@ html
     title #{title} - Spyder GIS
     link(rel='shortcut icon', href='/favicon.png')
     //- link(href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css")
-    //- link(href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.1.0/font-awesome-animation.min.css" rel="stylesheet" type="text/css")
+    link(href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" type="text/css")
     link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css")
     link(href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css" rel="stylesheet" type="text/css")
     link(rel='stylesheet', href='/css/main.css')
@@ -75,6 +75,11 @@ html
         background-color: #337ab7;
         border-color: transparent;
         cursor: default;
+      }
+      div.dataTables_wrapper div.dataTables_info {
+        color: inherit;
+        padding-top: 0.85em;
+        white-space: nowrap;
       }
       //- .dataTables_wrapper .dataTables_length {
       //- float: left;
@@ -166,11 +171,48 @@ html
         hr
         .row#pgcontent
           block content
+        #metadata.modal.fade(tabindex="-1", role="dialog", aria-labelledby="myModalLabel")
+          .modal-dialog(role="document")
+            .modal-content
+              .modal-header
+                button.close(type="button", data-dismiss="modal", aria-label="Close")
+                  span(aria-hidden="true", style="color:white;") ×
+                |         
+                h4#myModalTitle.modal-title Modal title
+              |       
+              .modal-body
+                |                  
+                .form-group
+                  label(for="description") Description
+                  |
+                  textarea#description.form-control(type="text", name="description", placeholder="Type description Here", cols="40", rows="5", style="resize:vertical;", required="")
+                .form-group
+                  label#lblstatus.control-label(for="status")
+                  |                                 
+                  div(data-toggle="buttons")
+                    input#status.form-control.required(type="hidden", name="status", value="true")
+                    |                                     
+                    label#activate.btn.btn-md.btn-default.btn-info.active(data-val="true")
+                      input(type="radio")
+                      |                                         
+                      i.fa.fa-thumbs-o-up    Activate
+                    |                                     
+                    label#deactivate.btn.btn-md.btn-default.btn-danger(data-val="false")
+                      input(type="radio")
+                      |                                         
+                      i.fa.fa-thumbs-o-down    Deactivate
+                |
+              |       
+              .modal-footer
+                button#btnMetaSave.btn.btn-info(type="button") Save changes
+                |         
+                button.btn.btn-danger(type="button", data-dismiss="modal") Close
     include ../partials/footer
 
     script(src='/js/lib/jquery-3.1.1.min.js')
     script(src='/js/lib/bootstrap.min.js')
     script(src='https://unpkg.com/axios/dist/axios.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js')
     script(src='https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js')
     script(src='https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js')

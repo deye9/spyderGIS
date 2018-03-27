@@ -20,13 +20,6 @@ $inputBG: #f3fafd;
     color: #01c0c8;
 }
 
-.linkactive {
-    color: #1e0015;
-    font-weight: bold;
-    background-color: #31708f;
-    border-right: 5px solid #1e0015; 
-}
-
 .datepicker th.datepicker-switch {
     width: 145px;
     color: black;
@@ -271,6 +264,20 @@ i, span {
     outline-offset: 15px;
     text-shadow: 1px 1px 2px #427388; 
     text-decoration: none;
+}
+
+.linkactive {
+    // color: #1e0015;
+    // font-weight: bold;
+    // background-color: #31708f;
+    color: #18BC9C;
+    border: 1px solid;
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, .5), 0 0 20px rgba(255, 255, 255, .2);
+    outline-color: rgba(255, 255, 255, 0);
+    outline-offset: 15px;
+    text-shadow: 1px 1px 2px #427388; 
+    text-decoration: none;
+    border-right: 5px solid #fff; 
 }
 
 #sidebar ul li a i {

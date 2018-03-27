@@ -1,16 +1,36 @@
 const api = '/api/';
-const oTable = null;
+const GIS = {
+  temp: '',
+  auditenddate: '',
+  auditstartdate: '',
+  toastType: {
+    Info: 'info',
+    Error: 'error',
+    Success: 'success',
+    Warning: 'warning'
+  },
+  toastTitle: 'GIS Notification Service'
+};
 const excludeKeys = 'id, created_by, deleted_at, category';
 
 $(document).ready(() => {
-  $('#navlinks').on('click', 'a', function (e) {
-    e.preventDefault();
-    const _category = $(this).text();
-    const _url = `${api + $(this).data('api')}/${_category}`;
-    $('#pgHeader').html(_category);
-    LoadData(_url);
-    // console.log($(this).attr('href'));
-  });
+  toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": false,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": true,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+  };
 
   function toTitleCase(str) {
     str = $.trim(str);
@@ -18,10 +38,77 @@ $(document).ready(() => {
     return str.replace(/(?:^|\s)\w/g, match => match.toUpperCase());
   }
 
-  function CreateDataTable(jsonObj) {
-    $('#pgcontent').empty();
-    const _keys = Object.keys(jsonObj[0]);
+  function Notify(toastType, toastMessage) {
+    toastr[toastType](toastMessage, GIS.toastTitle);
+  }
+
+  function handleRequest(_method, _url, _data) {
+    // Send a POST request
+    axios({
+      method: _method,
+      url: _url,
+      data: _data
+    })
+      .then((response) => {
+        console.log(response);
+        // response.data.pipe(fs.createWriteStream('ada_lovelace.jpg'));
+      });
+      // Notify(GIS.toastType.Error, _status);
+  }
+
+  $(".modal").on('hidden.bs.modal', () => {
+    $('#description').val('');
+    $('#activate').addClass('active');
+    $('#deactivate').removeClass('active');
+  });
+
+  $('#btnMetaSave').on('click', () => {
+    let _category = $('.linkactive').text();
+    let _path = $('.linkactive').data('api');
+    let _url = `${api + _path}/${_category}`;
+    let _status = !!$('#activate').hasClass('active');
+    let _data = { description: $('#description').val(), status: _status, category: _category };
+
+    handleRequest('post', _url, _data);
+    $('#metadata').modal('hide');
+  });
+
+  function populateModal(modalTitle) {
+    $('#lblstatus').text(modalTitle + ' Status *');
+    $('#myModalTitle').html('Setup ' + modalTitle + '.');
+  }
+
+  function createEmptyTable(tblTemplate) {
+    let _caller = $('.linkactive').text();
+    let data_form = $('.linkactive').data('api');
+
+    // Populate Table Headers
+    tblTemplate += '<thead><tr><th> &nbsp; </th></tr></thead>';
+
+    // Populate Table Body
+    tblTemplate += '<tbody>';
+    tblTemplate += '</tbody>';
+
+    // Populate Table Footer
+    tblTemplate += `<tfoot><tr><td> <button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#${data_form}" data-caller="${_caller}">Register ${_caller}.</button> </td></tr></tfoot>`;
+    tblTemplate += '</table>';
+
+    populateModal(_caller);
+    $('#pgcontent').append(`<div class="col-sm-12 col-md-12">${tblTemplate}</div>`);
+    $('#tblData').DataTable();
+  }
+
+  function createDataTable(jsonObj) {
     let tblData = '<table id="tblData" class="table table-striped table-bordered" style="width:100%; color: #999;">';
+
+    if ($.isEmptyObject(jsonObj)) {
+      createEmptyTable(tblData);
+      return true;
+    }
+
+    let _keys = Object.keys(jsonObj[0]);
+    let _caller = $('.linkactive').text();
+    let data_form = $('.linkactive').data('api');
 
     // Populate Table Headers
     tblData += '<thead><tr>';
@@ -46,7 +133,12 @@ $(document).ready(() => {
               break;
 
             case 'created_at':
-              tblData += `<td>${moment(value).format('dddd Do of MMMM YYYY hh:mm:ss')}</td>`;
+            case 'updated_at':
+              if (value == null) {
+                tblData += '<td>&nbsp;</td>';
+              } else {
+                tblData += `<td>${moment(value).format('dddd Do of MMMM YYYY hh:mm:ss')}</td>`;
+              }
               break;
 
             case 'user':
@@ -64,26 +156,46 @@ $(document).ready(() => {
 
     // Populate Table Footer
     tblData += '<tfoot>';
-    // tblData += '<tr><td></td></tr>';
+    // tblTemplate += `<tfoot><tr><td> <button type="button" class="btn btn-info pull-right">Register new ${_caller}</button> </td></tr></tfoot>`;
     tblData += '</tfoot>';
 
     tblData += '</table>';
+    populateModal(_caller);
+
     $('#pgcontent').append(`<div class="col-sm-12 col-md-12">${tblData}</div>`);
     $('#tblData').DataTable();
   }
 
-  function LoadData(_url) {
+  function loadData(_url) {
     axios.get(_url)
       .then((response) => {
         if (response.data.success) {
-          CreateDataTable(response.data.data);
+          createDataTable(response.data.data);
         }
         // console.log(response.headers['x-access-token']);
       })
       .catch((error) => {
-        console.log(error);
+        Notify(GIS.toastType.Error, error.message);
       });
   }
+
+  $('#navlinks').on('click', 'a', function (e) {
+    e.preventDefault();
+    $('#pgcontent').empty();
+    const _category = $(this).text();
+    $('#pgHeader').html(_category);
+    const _url = `${api + $(this).data('api')}/${_category}`;
+
+    $('#navlinks li a').filter(function () {
+      $(this).removeClass('linkactive');
+    });
+
+    $(this).addClass('linkactive').parent().parent()
+      .addClass('in')
+      .parent();
+    loadData(_url);
+  });
+
 });
 
 // $(document).ready(function() {

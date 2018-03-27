@@ -11,7 +11,7 @@ const metadataModel = (sequelize, DataTypes) => {
       allowNull: false
     },
     category: {
-      type: DataTypes.ENUM('Building Type', 'Drainage Description', 'Collection Description', 'Road Carriage Description', 'Road Condition', 'Road Feature', 'Road Surface', 'Street Furniture', 'Primary Category', 'Road Type', 'Site Condition', 'Secondary'),
+      type: DataTypes.ENUM('Drainage', 'Road Type', 'Site Condition', 'Road Surface', 'Road Feature', 'Building Type', 'Refuse Disposal', 'Road Condition', 'Street Furniture', 'Road Carriage Type'),
       allowNull: false
     },
     created_by: {

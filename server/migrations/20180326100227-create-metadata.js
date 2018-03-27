@@ -18,7 +18,7 @@ module.exports = {
       },
       category: {
         allowNull: false,
-        type: Sequelize.ENUM('Building Type', 'Drainage Description', 'Collection Description', 'Road Carriage Description', 'Road Condition', 'Road Feature', 'Road Surface', 'Street Furniture', 'Primary Category', 'Road Type', 'Site Condition', 'Secondary')
+        type: Sequelize.ENUM('Drainage', 'Road Type', 'Site Condition', 'Road Surface', 'Road Feature', 'Building Type', 'Refuse Disposal', 'Road Condition', 'Street Furniture', 'Road Carriage Type'),
       },
       created_by: {
         allowNull: false,
