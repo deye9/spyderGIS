@@ -1,4 +1,3 @@
-const api = '/api/';
 const GIS = {
   temp: '',
   auditenddate: '',
@@ -11,6 +10,7 @@ const GIS = {
   },
   toastTitle: 'GIS Notification Service'
 };
+const api = '/api/';
 const excludeKeys = 'id, created_by, deleted_at, category';
 
 $(document).ready(() => {
@@ -32,6 +32,34 @@ $(document).ready(() => {
     "hideMethod": "fadeOut"
   };
 
+  function setEditables() {
+    // $('#dataStatus a').editable({
+    //   url: '/post',
+    //   name: 'status',
+    //   validate(value) {
+    //     if ($.trim(value) === '') return 'This field is required';
+    //   }
+    // });
+
+    $('#dataStatus a').editable({
+      value: true,
+      source: [
+        { value: true, text: 'Activate' },
+        { value: false, text: 'Deactivate' }
+      ],
+      radiolist: {
+        linebreak: true
+      }
+    });
+
+    $('#dataDescription a').editable({
+      showbuttons: 'bottom',
+      validate(value) {
+        if ($.trim(value) === '') return 'This field is required';
+      }
+    });
+  }
+
   function toTitleCase(str) {
     str = $.trim(str);
     str = str.replace('_', ' ');
@@ -43,17 +71,22 @@ $(document).ready(() => {
   }
 
   function handleRequest(_method, _url, _data) {
+    alert('TODO: Add new record to table dynamically.');
     // Send a POST request
     axios({
-      method: _method,
       url: _url,
-      data: _data
+      data: _data,
+      method: _method,
+      headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
     })
       .then((response) => {
-        console.log(response);
-        // response.data.pipe(fs.createWriteStream('ada_lovelace.jpg'));
+        if (response.data.success) {
+          Notify(GIS.toastType.Success, response.data.message);
+        }
+      })
+      .catch((error) => {
+        Notify(GIS.toastType.Error, error.message);
       });
-      // Notify(GIS.toastType.Error, _status);
   }
 
   $(".modal").on('hidden.bs.modal', () => {
@@ -67,15 +100,19 @@ $(document).ready(() => {
     let _path = $('.linkactive').data('api');
     let _url = `${api + _path}/${_category}`;
     let _status = !!$('#activate').hasClass('active');
-    let _data = { description: $('#description').val(), status: _status, category: _category };
 
-    handleRequest('post', _url, _data);
-    $('#metadata').modal('hide');
+    if ($('#description').val() !== '') {
+      let _data = { description: $('#description').val(), status: _status, category: _category };
+      handleRequest('post', _url, _data);
+      $('#metadata').modal('hide');
+    } else {
+      Notify(GIS.toastType.Info, `${_category} description cannot be empty.`);
+    }
   });
 
   function populateModal(modalTitle) {
-    $('#lblstatus').text(modalTitle + ' Status *');
-    $('#myModalTitle').html('Setup ' + modalTitle + '.');
+    $('#lblstatus').text(`${modalTitle} Status *`);
+    $('#myModalTitle').html(`Setup ${modalTitle}.`);
   }
 
   function createEmptyTable(tblTemplate) {
@@ -86,11 +123,10 @@ $(document).ready(() => {
     tblTemplate += '<thead><tr><th> &nbsp; </th></tr></thead>';
 
     // Populate Table Body
-    tblTemplate += '<tbody>';
-    tblTemplate += '</tbody>';
+    tblTemplate += '<tbody></tbody>';
 
     // Populate Table Footer
-    tblTemplate += `<tfoot><tr><td> <button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#${data_form}" data-caller="${_caller}">Register ${_caller}.</button> </td></tr></tfoot>`;
+    tblTemplate += `<tfoot><tr><td> <button type="button" class="btn btn-info center" data-toggle="modal" data-target="#${data_form}" data-caller="${_caller}">Register ${_caller}.</button> </td></tr></tfoot>`;
     tblTemplate += '</table>';
 
     populateModal(_caller);
@@ -99,6 +135,7 @@ $(document).ready(() => {
   }
 
   function createDataTable(jsonObj) {
+    let _rowCount = 1;
     let tblData = '<table id="tblData" class="table table-striped table-bordered" style="width:100%; color: #999;">';
 
     if ($.isEmptyObject(jsonObj)) {
@@ -115,6 +152,7 @@ $(document).ready(() => {
     tblData += '<th> # </th>';
     for (const j in _keys) {
       if (excludeKeys.indexOf(_keys[j]) === -1) {
+        _rowCount += 1;
         tblData += `<th>${toTitleCase(_keys[j])}</th>`;
       }
     }
@@ -129,7 +167,11 @@ $(document).ready(() => {
         if (excludeKeys.indexOf(key) === -1) {
           switch (key.toLowerCase()) {
             case 'status':
-              tblData += `<td>${toTitleCase(value === true ? 'Active' : 'Inactive')}</td>`;
+              tblData += `<td id="dataStatus"><a href="#" style="color:blue;" data-type="radiolist" data-title="Set Status" data-pk="${this.id}">${toTitleCase(value === true ? 'Active' : 'Inactive')}</a></td>`;
+              break;
+
+            case 'description':
+              tblData += `<td id="dataDescription"><a href="#" style="color:blue;" data-type="textarea" data-title="Edit Description" data-pk="${this.id}">${toTitleCase(value)}</a></td>`;
               break;
 
             case 'created_at':
@@ -155,15 +197,14 @@ $(document).ready(() => {
     tblData += '</tbody>';
 
     // Populate Table Footer
-    tblData += '<tfoot>';
-    // tblTemplate += `<tfoot><tr><td> <button type="button" class="btn btn-info pull-right">Register new ${_caller}</button> </td></tr></tfoot>`;
-    tblData += '</tfoot>';
+    tblData += `<tfoot><tr><td colspan="${_rowCount}"> <button type="button" class="btn btn-info center" data-toggle="modal" data-target="#${data_form}" data-caller="${_caller}">Register ${_caller}.</button> </td></tr></tfoot>`;
 
     tblData += '</table>';
+   
     populateModal(_caller);
-
     $('#pgcontent').append(`<div class="col-sm-12 col-md-12">${tblData}</div>`);
     $('#tblData').DataTable();
+    setEditables();
   }
 
   function loadData(_url) {
@@ -183,7 +224,7 @@ $(document).ready(() => {
     e.preventDefault();
     $('#pgcontent').empty();
     const _category = $(this).text();
-    $('#pgHeader').html(_category);
+    $('#pgHeader').html(`${_category  } Setup.`);
     const _url = `${api + $(this).data('api')}/${_category}`;
 
     $('#navlinks li a').filter(function () {
@@ -197,6 +238,90 @@ $(document).ready(() => {
   });
 
 });
+
+(function ($) {
+  const Radiolist = function (options) {
+    this.init('radiolist', options, Radiolist.defaults);
+  };
+  $.fn.editableutils.inherit(Radiolist, $.fn.editabletypes.checklist);
+
+  $.extend(Radiolist.prototype, {
+    renderList() {
+      let $label;
+      this.$tpl.empty();
+      if (!$.isArray(this.sourceData)) {
+        return;
+      }
+/* <div class="row" style="margin-bottom:20px;">
+    <label class="col-md-4 control-label" style="text-align:left;" for="status"> Activate Wallet </label>
+
+    <div class="col-md-8" data-toggle="buttons">
+        <input type="hidden" id="status" name="status" class="form-control required" value="true" />
+
+        <label class="clickable btn btn-md btn-wura active pull-left" data-val="true" data-parentctrl="status">
+            <input type="radio" />
+            <i class="fa fa-thumbs-o-up"> &nbsp; YES</i>
+        </label>
+
+        <label class="clickable btn btn-md btn-wura active pull-right" data-val="false" data-parentctrl="status">
+            <input type="radio" />
+            <i class="fa fa-thumbs-o-down"> &nbsp; NO</i>
+        </label>
+    </div>
+</div>  */
+      for (let i = 0; i < this.sourceData.length; i++) {
+        $label = $('<label>', { class: this.options.inputclass }).append($('<input>', {
+          type: 'radio',
+          name: this.options.name,
+          value: this.sourceData[i].value
+        })).append($('<span>').text('   ' + this.sourceData[i].text));
+        // Add radio buttons to template
+        this.$tpl.append($label);
+
+        if (this.options.radiolist.linebreak) {
+          this.$tpl.append('<br />');
+        }
+      }
+
+      this.$input = this.$tpl.find('input[type="radio"]');
+    },
+    input2value() {
+      return this.$input.filter(':checked').val();
+    },
+    str2value(str) {
+      return str || null;
+    },
+
+    value2input(value) {
+      this.$input.val([value]);
+    },
+    value2str(value) {
+      return value || '';
+    },
+  });
+
+  Radiolist.defaults = $.extend({}, $.fn.editabletypes.list.defaults, {
+    /**
+      @property tpl
+      @default <div></div>
+    * */
+    tpl: '<div class="editable-radiolist"></div>',
+
+    /**
+     @property inputclass, attached to the <label> wrapper instead of the input element
+      @type string
+      @default null
+    * */
+    inputclass: '',
+    radiolist: {
+      linebreak: false
+    },
+
+    name: 'defaultname'
+  });
+
+  $.fn.editabletypes.radiolist = Radiolist;
+}(window.jQuery));
 
 // $(document).ready(function() {
 

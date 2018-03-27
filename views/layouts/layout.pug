@@ -8,7 +8,7 @@ html
     meta(name='csrf-token', content=_csrf)
     title #{title} - Spyder GIS
     link(rel='shortcut icon', href='/favicon.png')
-    //- link(href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css")
+    link(href="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet" type="text/css")
     link(href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" type="text/css")
     link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css")
     link(href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css" rel="stylesheet" type="text/css")
@@ -80,6 +80,11 @@ html
         color: inherit;
         padding-top: 0.85em;
         white-space: nowrap;
+      }
+      .editable-buttons {
+        display: block;
+        vertical-align: top;
+        margin-top: 7px;
       }
       //- .dataTables_wrapper .dataTables_length {
       //- float: left;
@@ -211,6 +216,8 @@ html
 
     script(src='/js/lib/jquery-3.1.1.min.js')
     script(src='/js/lib/bootstrap.min.js')
+    script(src='http://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js')
+    script(src='https://gist.github.com/taivo/da6d47c7b291f71b9502.js')
     script(src='https://unpkg.com/axios/dist/axios.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js')

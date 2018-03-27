@@ -38,47 +38,56 @@ const metadataController = {
       }));
   },
   create(req, res) {
-    const body = req.body;
+    const body = {
+      status: req.body.status,
+      category: req.body.category,
+      description: req.body.description,
+      created_by: req.decoded.UserID
+    };
     const validator = new Validator(body, Meta.createRules());
-
-    console.log(body);
-    console.log(req.user);
-    console.log(req.decoded);
 
     if (validator.passes()) {
       Meta.findOne(
         {
           where: {
+            status: body.status,
             category: body.category,
-            created_by: req.decoded.UserID,
             description: body.description,
-            status: body.status
+            created_by: req.decoded.UserID
           }
         })
         .then((foundMeta) => {
           if (foundMeta) {
-            return res.status(409).json({
-              success: false,
-              message: 'You have this Metadata already, please edit it.'
-            });
+            return Promise.reject({ code: 409, message: 'You have this Metadata already, please edit it.', success: false });
+
+            // return res.status(409).json({
+            //   success: false,
+            //   message: 'You have this Metadata already, please edit it.'
+            // });
           }
           Meta.create({
             status: body.status,
             category: body.category,
-            created_by: req.decoded.UserID,
-            description: body.description
+            description: body.description,
+            created_by: req.decoded.UserID
           })
-            .then(newMeta => res.status(201).json({
-              data: newMeta,
-              success: true,
-              message: 'Metadata was successfully created.'
-            }))
-            .catch(error => res.status(400).json(error));
+            .then(newMeta =>
+              res.status(201).json({
+                data: newMeta,
+                success: true,
+                message: `Metadata was successfully created for ${body.category}.`
+              })
+            )
+            .catch(metaerror => res.status(400).json({
+              success: false,
+              error: metaerror,
+              message: metaerror.message
+            }));
         })
-        .catch(error => res.status(500).json({
-          error: error,
+        .catch(metaerror => res.status(500).json({
           success: false,
-          message: error.message
+          error: metaerror,
+          message: metaerror.message
         }));
     } else {
       return res.status(400).json({
