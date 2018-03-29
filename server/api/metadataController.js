@@ -32,7 +32,7 @@ const metadataController = {
         });
       })
       .catch(error => res.status(500).json({
-        error: error,
+        error,
         success: false,
         message: error.message
       }));

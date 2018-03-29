@@ -16,21 +16,21 @@ const excludeKeys = 'id, created_by, deleted_at, category';
 
 $(document).ready(() => {
   toastr.options = {
-    "closeButton": true,
-    "debug": false,
-    "newestOnTop": false,
-    "progressBar": true,
-    "positionClass": "toast-top-right",
-    "preventDuplicates": true,
-    "onclick": null,
-    "showDuration": "300",
-    "hideDuration": "1000",
-    "timeOut": "5000",
-    "extendedTimeOut": "1000",
-    "showEasing": "swing",
-    "hideEasing": "linear",
-    "showMethod": "fadeIn",
-    "hideMethod": "fadeOut"
+    closeButton: true,
+    debug: false,
+    newestOnTop: false,
+    progressBar: true,
+    positionClass: 'toast-top-right',
+    preventDuplicates: true,
+    onclick: null,
+    showDuration: '300',
+    hideDuration: '1000',
+    timeOut: '5000',
+    extendedTimeOut: '1000',
+    showEasing: 'swing',
+    hideEasing: 'linear',
+    showMethod: 'fadeIn',
+    hideMethod: 'fadeOut'
   };
 
   function setEditables() {
@@ -83,20 +83,20 @@ $(document).ready(() => {
       });
   }
 
-  $(".modal").on('hidden.bs.modal', () => {
+  $('.modal').on('hidden.bs.modal', () => {
     $('#description').val('');
     $('#activate').addClass('active');
     $('#deactivate').removeClass('active');
   });
 
   $('#btnMetaSave').on('click', () => {
-    let _category = $('.linkactive').text();
-    let _path = $('.linkactive').data('api');
-    let _url = `${api + _path}/${_category}`;
-    let _status = !!$('#activate').hasClass('active');
+    const _category = $('.linkactive').text();
+    const _path = $('.linkactive').data('api');
+    const _url = `${api + _path}/${_category}`;
+    const _status = !!$('#activate').hasClass('active');
 
     if ($('#description').val() !== '') {
-      let _data = { description: $('#description').val(), status: _status, category: _category };
+      const _data = { description: $('#description').val(), status: _status, category: _category };
       handleRequest('post', _url, _data);
       $('#metadata').modal('hide');
     } else {
@@ -110,8 +110,8 @@ $(document).ready(() => {
   }
 
   function createEmptyTable(tblTemplate) {
-    let _caller = $('.linkactive').text();
-    let data_form = $('.linkactive').data('api');
+    const _caller = $('.linkactive').text();
+    const dataForm = $('.linkactive').data('api');
 
     // Populate Table Headers
     tblTemplate += '<thead><tr><th> &nbsp; </th></tr></thead>';
@@ -120,7 +120,7 @@ $(document).ready(() => {
     tblTemplate += '<tbody></tbody>';
 
     // Populate Table Footer
-    tblTemplate += `<tfoot><tr><td> <button type="button" class="btn btn-info center" data-toggle="modal" data-target="#${data_form}" data-caller="${_caller}">Register ${_caller}.</button> </td></tr></tfoot>`;
+    tblTemplate += `<tfoot><tr><td> <button type="button" class="btn btn-info center" data-toggle="modal" data-target="#${dataForm}" data-caller="${_caller}">Register ${_caller}.</button> </td></tr></tfoot>`;
     tblTemplate += '</table>';
 
     populateModal(_caller);
@@ -137,9 +137,9 @@ $(document).ready(() => {
       return true;
     }
 
-    let _keys = Object.keys(jsonObj[0]);
-    let _caller = $('.linkactive').text();
-    let data_form = $('.linkactive').data('api');
+    const _keys = Object.keys(jsonObj[0]);
+    const _caller = $('.linkactive').text();
+    const dataForm = $('.linkactive').data('api');
 
     // Populate Table Headers
     tblData += '<thead><tr>';
@@ -191,7 +191,7 @@ $(document).ready(() => {
     tblData += '</tbody>';
 
     // Populate Table Footer
-    tblData += `<tfoot><tr><td colspan="${_rowCount}"> <button type="button" class="btn btn-info center" data-toggle="modal" data-target="#${data_form}" data-caller="${_caller}">Register ${_caller}.</button> </td></tr></tfoot>`;
+    tblData += `<tfoot><tr><td colspan="${_rowCount}"> <button type="button" class="btn btn-info center" data-toggle="modal" data-target="#${dataForm}" data-caller="${_caller}">Register ${_caller}.</button> </td></tr></tfoot>`;
 
     tblData += '</table>';
 
@@ -218,7 +218,7 @@ $(document).ready(() => {
     e.preventDefault();
     $('#pgcontent').empty();
     const _category = $(this).text();
-    $('#pgHeader').html(`${_category } Setup.`);
+    $('#pgHeader').html(`${_category} Setup.`);
     const _url = `${api + $(this).data('api')}/${_category}`;
 
     $('#navlinks li a').filter(function () {
@@ -230,7 +230,6 @@ $(document).ready(() => {
       .parent();
     loadData(_url);
   });
-
 });
 
 (function ($) {
