@@ -10,6 +10,7 @@ const GIS = {
   },
   toastTitle: 'GIS Notification Service'
 };
+let oTable = '';
 const api = '/api/';
 const excludeKeys = 'id, created_by, deleted_at, category';
 
@@ -33,23 +34,16 @@ $(document).ready(() => {
   };
 
   function setEditables() {
-    // $('#dataStatus a').editable({
-    //   url: '/post',
-    //   name: 'status',
-    //   validate(value) {
-    //     if ($.trim(value) === '') return 'This field is required';
-    //   }
-    // });
-
     $('#dataStatus a').editable({
       value: true,
-      source: [
-        { value: true, text: 'Activate' },
-        { value: false, text: 'Deactivate' }
-      ],
       radiolist: {
         linebreak: true
-      }
+      },
+      showbuttons: false,
+      source: [
+        { value: true, text: ' Activate', class: 'btn btn-md btn-default btn-info active', display: 'fa fa-thumbs-o-up' },
+        { value: false, text: ' Deactivate', class: 'btn btn-md btn-default btn-danger', display: 'fa fa-thumbs-o-down' }
+      ]
     });
 
     $('#dataDescription a').editable({
@@ -131,7 +125,7 @@ $(document).ready(() => {
 
     populateModal(_caller);
     $('#pgcontent').append(`<div class="col-sm-12 col-md-12">${tblTemplate}</div>`);
-    $('#tblData').DataTable();
+    oTable = $('#tblData').DataTable();
   }
 
   function createDataTable(jsonObj) {
@@ -167,7 +161,7 @@ $(document).ready(() => {
         if (excludeKeys.indexOf(key) === -1) {
           switch (key.toLowerCase()) {
             case 'status':
-              tblData += `<td id="dataStatus"><a href="#" style="color:blue;" data-type="radiolist" data-title="Set Status" data-pk="${this.id}">${toTitleCase(value === true ? 'Active' : 'Inactive')}</a></td>`;
+              tblData += `<td id="dataStatus"><a id="st${this.id}" href="#" style="color:blue;" data-type="radiolist" data-title="Set Status" data-pk="${this.id}">${toTitleCase(value === true ? 'Active' : 'Inactive')}</a></td>`;
               break;
 
             case 'description':
@@ -200,10 +194,10 @@ $(document).ready(() => {
     tblData += `<tfoot><tr><td colspan="${_rowCount}"> <button type="button" class="btn btn-info center" data-toggle="modal" data-target="#${data_form}" data-caller="${_caller}">Register ${_caller}.</button> </td></tr></tfoot>`;
 
     tblData += '</table>';
-   
+
     populateModal(_caller);
     $('#pgcontent').append(`<div class="col-sm-12 col-md-12">${tblData}</div>`);
-    $('#tblData').DataTable();
+    oTable = $('#tblData').DataTable();
     setEditables();
   }
 
@@ -224,7 +218,7 @@ $(document).ready(() => {
     e.preventDefault();
     $('#pgcontent').empty();
     const _category = $(this).text();
-    $('#pgHeader').html(`${_category  } Setup.`);
+    $('#pgHeader').html(`${_category } Setup.`);
     const _url = `${api + $(this).data('api')}/${_category}`;
 
     $('#navlinks li a').filter(function () {
@@ -252,31 +246,20 @@ $(document).ready(() => {
       if (!$.isArray(this.sourceData)) {
         return;
       }
-/* <div class="row" style="margin-bottom:20px;">
-    <label class="col-md-4 control-label" style="text-align:left;" for="status"> Activate Wallet </label>
 
-    <div class="col-md-8" data-toggle="buttons">
-        <input type="hidden" id="status" name="status" class="form-control required" value="true" />
-
-        <label class="clickable btn btn-md btn-wura active pull-left" data-val="true" data-parentctrl="status">
-            <input type="radio" />
-            <i class="fa fa-thumbs-o-up"> &nbsp; YES</i>
-        </label>
-
-        <label class="clickable btn btn-md btn-wura active pull-right" data-val="false" data-parentctrl="status">
-            <input type="radio" />
-            <i class="fa fa-thumbs-o-down"> &nbsp; NO</i>
-        </label>
-    </div>
-</div>  */
       for (let i = 0; i < this.sourceData.length; i++) {
-        $label = $('<label>', { class: this.options.inputclass }).append($('<input>', {
-          type: 'radio',
-          name: this.options.name,
-          value: this.sourceData[i].value
-        })).append($('<span>').text('   ' + this.sourceData[i].text));
+        $label = $('<label>', { class: this.sourceData[i].class, id: this.sourceData[i].text })
+          .append($('<input>', { type: 'radio', name: this.options.name, value: this.sourceData[i].value }))
+          .append($('<i> ', { class: this.sourceData[i].display }).text(`${this.sourceData[i].text}`));
+
         // Add radio buttons to template
         this.$tpl.append($label);
+
+        $label.click((evt) => {
+          const _id = evt.originalEvent.srcElement.offsetParent.parentElement.childNodes['0'].id;
+          $(`#${_id}`).text(evt.target.innerText.toLowerCase() === ' activate' ? 'Active' : 'Inactive');
+          $('.editable-popup').toggle();
+        });
 
         if (this.options.radiolist.linebreak) {
           this.$tpl.append('<br />');
@@ -285,6 +268,7 @@ $(document).ready(() => {
 
       this.$input = this.$tpl.find('input[type="radio"]');
     },
+
     input2value() {
       return this.$input.filter(':checked').val();
     },
@@ -297,7 +281,7 @@ $(document).ready(() => {
     },
     value2str(value) {
       return value || '';
-    },
+    }
   });
 
   Radiolist.defaults = $.extend({}, $.fn.editabletypes.list.defaults, {
@@ -305,7 +289,7 @@ $(document).ready(() => {
       @property tpl
       @default <div></div>
     * */
-    tpl: '<div class="editable-radiolist"></div>',
+    tpl: '<div class="editable-radiolist" data-toggle="buttons"></div>',
 
     /**
      @property inputclass, attached to the <label> wrapper instead of the input element
@@ -316,7 +300,6 @@ $(document).ready(() => {
     radiolist: {
       linebreak: false
     },
-
     name: 'defaultname'
   });
 
