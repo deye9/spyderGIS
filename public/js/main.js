@@ -14,43 +14,66 @@ let oTable = '';
 const api = '/api/';
 const excludeKeys = 'id, created_by, deleted_at, category';
 
-$(document).ready(() => {
-  toastr.options = {
-    closeButton: true,
-    debug: false,
-    newestOnTop: false,
-    progressBar: true,
-    positionClass: 'toast-top-right',
-    preventDuplicates: true,
-    onclick: null,
-    showDuration: '300',
-    hideDuration: '1000',
-    timeOut: '5000',
-    extendedTimeOut: '1000',
-    showEasing: 'swing',
-    hideEasing: 'linear',
-    showMethod: 'fadeIn',
-    hideMethod: 'fadeOut'
-  };
+toastr.options = {
+  closeButton: true,
+  debug: false,
+  newestOnTop: false,
+  progressBar: true,
+  positionClass: 'toast-top-right',
+  preventDuplicates: true,
+  onclick: null,
+  showDuration: '300',
+  hideDuration: '1000',
+  timeOut: '5000',
+  extendedTimeOut: '1000',
+  showEasing: 'swing',
+  hideEasing: 'linear',
+  showMethod: 'fadeIn',
+  hideMethod: 'fadeOut'
+};
 
+function Notify(toastType, toastMessage) {
+  toastr[toastType](toastMessage, GIS.toastTitle);
+}
+
+$(document).ready(() => {
+  $.ajaxSetup({
+    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
+  });
+  
   function setEditables() {
+    const _caller = $('.linkactive').text();
+    const dataForm = $('.linkactive').data('api');
+
     $('#dataStatus a').editable({
       value: true,
       radiolist: {
         linebreak: true
       },
-      showbuttons: false,
       source: [
         { value: true, text: ' Activate', class: 'btn btn-md btn-default btn-info active', display: 'fa fa-thumbs-o-up' },
         { value: false, text: ' Deactivate', class: 'btn btn-md btn-default btn-danger', display: 'fa fa-thumbs-o-down' }
-      ]
+      ],
+      ajaxOptions: {
+        type: 'put',
+        dataType: 'json'
+      },
+      showbuttons: false,
+      url: `${api + dataForm}/${_caller}`,
+      params: { name: 'status', category: _caller }
     });
 
     $('#dataDescription a').editable({
-      showbuttons: 'bottom',
+      ajaxOptions: {
+        type: 'put',
+        dataType: 'json'
+      },
       validate(value) {
         if ($.trim(value) === '') return 'This field is required';
-      }
+      },
+      showbuttons: 'bottom',
+      url: `${api + dataForm}/${_caller}`,
+      params: { name: 'description', category: _caller }
     });
   }
 
@@ -58,10 +81,6 @@ $(document).ready(() => {
     str = $.trim(str);
     str = str.replace('_', ' ');
     return str.replace(/(?:^|\s)\w/g, match => match.toUpperCase());
-  }
-
-  function Notify(toastType, toastMessage) {
-    toastr[toastType](toastMessage, GIS.toastTitle);
   }
 
   function handleRequest(_method, _url, _data) {
@@ -257,7 +276,35 @@ $(document).ready(() => {
         $label.click((evt) => {
           const _id = evt.originalEvent.srcElement.offsetParent.parentElement.childNodes['0'].id;
           $(`#${_id}`).text(evt.target.innerText.toLowerCase() === ' activate' ? 'Active' : 'Inactive');
-          $('.editable-popup').toggle();
+          // editable-submit
+          // $('.editableform').editable().submit();
+
+          const _caller = $('.linkactive').text();
+          const dataForm = $('.linkactive').data('api');
+          const _url = `${api + dataForm}/${_caller}`;
+          const params = {
+            name: 'status',
+            category: _caller,
+            pk: _id.replace(/st/gi, ''),
+            value: evt.target.innerText.toLowerCase() === ' activate' ? true : false
+          };
+
+          // Send a PUT request
+          axios({
+            url: _url,
+            data: params,
+            method: 'put',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+          })
+          .then((response) => {
+            if (response.data.success) {
+              $('.editable-popup').hide();
+              Notify(GIS.toastType.Success, response.data.message);
+            }
+          })
+          .catch((error) => {
+            Notify(GIS.toastType.Error, error.message);
+          });
         });
 
         if (this.options.radiolist.linebreak) {

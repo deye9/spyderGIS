@@ -59,11 +59,6 @@ const metadataController = {
         .then((foundMeta) => {
           if (foundMeta) {
             return Promise.reject({ code: 409, message: 'You have this Metadata already, please edit it.', success: false });
-
-            // return res.status(409).json({
-            //   success: false,
-            //   message: 'You have this Metadata already, please edit it.'
-            // });
           }
           Meta.create({
             status: body.status,
@@ -98,12 +93,55 @@ const metadataController = {
     }
   },
   update(req, res) {
-    if (req.user) {
-      return res.redirect('/');
+    const body = {
+      category: req.body.category,
+      created_by: req.decoded.UserID
+    };
+    const _id = req.body.pk;
+
+    switch (req.body.name.toLowerCase()) {
+      case 'status':
+        body.status = req.body.value;
+        break;
+
+      case 'description':
+        body.description = req.body.value;
+        break;
+
+      default:
+        break;
     }
-    res.render('account/login', {
-      title: 'Login'
-    });
+
+    return Meta
+      .findById(_id)
+      .then((meta) => {
+        if (!meta) {
+          return res.status(404).send({
+            success: false,
+            message: `${body.category} metadata Not Found`,
+          });
+        }
+        if (req.decoded.UserID !== meta.created_by) {
+          return res.status(404).json({
+            success: false,
+            message: `You have no access to edit this ${body.category} metadata.`
+          });
+        }
+
+        return meta
+          .update(body, { fields: Object.keys(body) })
+          .then(() => res.status(201).json({
+            data: meta,
+            success: true,
+            message: `${body.category} metadata successfully updated.`
+          }))
+          .catch(error => res.status(400).json({
+            success: false,
+            errors: error.errors,
+            message: `${body.category} metadata not updated.`
+          }));
+      })
+      .catch(error => res.status(500).json({ errors: error.errors }));
   },
   destroy(req, res) {
     if (req.user) {
