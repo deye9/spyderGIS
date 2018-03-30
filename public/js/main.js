@@ -36,55 +36,78 @@ function Notify(toastType, toastMessage) {
   toastr[toastType](toastMessage, GIS.toastTitle);
 }
 
+function setEditables() {
+  const _caller = $('.linkactive').text();
+  const dataForm = $('.linkactive').data('api');
+
+  $('#dataStatus a').editable({
+    value: true,
+    radiolist: {
+      linebreak: true
+    },
+    source: [
+      { value: true, text: ' Activate', class: 'btn btn-md btn-default btn-info active', display: 'fa fa-thumbs-o-up' },
+      { value: false, text: ' Deactivate', class: 'btn btn-md btn-default btn-danger', display: 'fa fa-thumbs-o-down' }
+    ],
+    ajaxOptions: {
+      type: 'put',
+      dataType: 'json'
+    },
+    showbuttons: false,
+    url: `${api + dataForm}/${_caller}`,
+    params: { name: 'status', category: _caller }
+  });
+
+  $('#dataDescription a').editable({
+    ajaxOptions: {
+      type: 'put',
+      dataType: 'json'
+    },
+    validate(value) {
+      if ($.trim(value) === '') return 'This field is required';
+    },
+    showbuttons: 'bottom',
+    url: `${api + dataForm}/${_caller}`,
+    params: { name: 'description', category: _caller }
+  });
+}
+
+function deleteRow(_id) {
+  const _path = $('.linkactive').data('api');
+  const _url = `${api + _path}/${_id}`;
+  
+  axios({
+    url: _url,
+    method: 'delete',
+    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+  })
+    .then((response) => {
+      if (response.data.success) {
+        let tblRow = $('#tr' + response.data.id);
+        oTable.row(tblRow).remove().draw();
+        Notify(GIS.toastType.Success, response.data.message);
+      } else {
+        Notify(GIS.toastType.Error, response.data.message);
+      }
+    })
+    .catch((error) => {
+      Notify(GIS.toastType.Error, error.response.data.message);
+    });
+}
+
 $(document).ready(() => {
   $.ajaxSetup({
     headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
   });
   
-  function setEditables() {
-    const _caller = $('.linkactive').text();
-    const dataForm = $('.linkactive').data('api');
-
-    $('#dataStatus a').editable({
-      value: true,
-      radiolist: {
-        linebreak: true
-      },
-      source: [
-        { value: true, text: ' Activate', class: 'btn btn-md btn-default btn-info active', display: 'fa fa-thumbs-o-up' },
-        { value: false, text: ' Deactivate', class: 'btn btn-md btn-default btn-danger', display: 'fa fa-thumbs-o-down' }
-      ],
-      ajaxOptions: {
-        type: 'put',
-        dataType: 'json'
-      },
-      showbuttons: false,
-      url: `${api + dataForm}/${_caller}`,
-      params: { name: 'status', category: _caller }
-    });
-
-    $('#dataDescription a').editable({
-      ajaxOptions: {
-        type: 'put',
-        dataType: 'json'
-      },
-      validate(value) {
-        if ($.trim(value) === '') return 'This field is required';
-      },
-      showbuttons: 'bottom',
-      url: `${api + dataForm}/${_caller}`,
-      params: { name: 'description', category: _caller }
-    });
-  }
-
   function toTitleCase(str) {
     str = $.trim(str);
     str = str.replace('_', ' ');
+    str = str.toLowerCase().replace('user', 'created by');
     return str.replace(/(?:^|\s)\w/g, match => match.toUpperCase());
   }
 
   function handleRequest(_method, _url, _data) {
-    alert('TODO: Add new record to table dynamically.');
     // Send a POST request
     axios({
       url: _url,
@@ -95,10 +118,28 @@ $(document).ready(() => {
       .then((response) => {
         if (response.data.success) {
           Notify(GIS.toastType.Success, response.data.message);
+
+          // Populate Table Body
+          jsonObj = response.data.data;
+          oTable
+            .row.add([
+              0,
+              `<td id="dataDescription"><a href="#" style="color:blue;" data-type="textarea" data-title="Edit Description" data-pk="${jsonObj.id}">${toTitleCase(jsonObj.description)}</a></td>`,
+              `<td id="dataStatus"><a id="st${jsonObj.id}" href="#" style="color:blue;" data-type="radiolist" data-title="Set Status" data-pk="${jsonObj.id}">${toTitleCase(jsonObj.status === true ? 'Active' : 'Inactive')}</a></td>`,
+              `<td>${moment(jsonObj.created_at).format('dddd Do of MMMM YYYY hh:mm:ss')}</td>`,
+              `<td>${moment(jsonObj.updated_at).format('dddd Do of MMMM YYYY hh:mm:ss')}</td>`,
+              ' '
+              // `<td><a href="mailto:${value.email}?Subject=Hello%20again" target="_top" style="color:#01c0c8;">${toTitleCase(`${value.firstname} ${value.lastname}`)}</a></td>`
+            ])
+            .draw()
+            .node();
+          setEditables();
+        } else {
+          Notify(GIS.toastType.Error, response.data.message);
         }
       })
       .catch((error) => {
-        Notify(GIS.toastType.Error, error.message);
+        Notify(GIS.toastType.Error, error.response.data.message);
       });
   }
 
@@ -174,8 +215,8 @@ $(document).ready(() => {
     // Populate Table Body
     tblData += '<tbody>';
     $.each(jsonObj, function (index, object) {
-      tblData += '<tr>';
-      tblData += `<td>${++index}</td>`;
+      tblData += `<tr id='tr${this.id}' rowid='tr${this.id}'>`;
+      tblData += `<td><a href="#" onclick="deleteRow(${this.id});" class="delete btn btn-default btn-danger"><i class="glyphicon glyphicon-trash"></i></a> ${++index} </td>`;
       $.each(this, (key, value) => {
         if (excludeKeys.indexOf(key) === -1) {
           switch (key.toLowerCase()) {
@@ -187,21 +228,21 @@ $(document).ready(() => {
               tblData += `<td id="dataDescription"><a href="#" style="color:blue;" data-type="textarea" data-title="Edit Description" data-pk="${this.id}">${toTitleCase(value)}</a></td>`;
               break;
 
+            case 'user':
+              tblData += `<td><a href="mailto:${value.email}?Subject=Hello%20again" target="_top" style="color:#01c0c8;">${toTitleCase(`${value.firstname} ${value.lastname}`)}</a></td>`;
+              break;
             case 'created_at':
             case 'updated_at':
               if (value == null) {
                 tblData += '<td>&nbsp;</td>';
               } else {
-                tblData += `<td>${moment(value).format('dddd Do of MMMM YYYY hh:mm:ss')}</td>`;
+                tblData += `<td>${moment(value).format('dddd Do of MMMM YYYY')}</td>`;
               }
-              break;
-
-            case 'user':
-              tblData += `<td><a href="mailto:${value.email}?Subject=Hello%20again" target="_top" style="color:#01c0c8;">${toTitleCase(`${value.firstname} ${value.lastname}`)}</a></td>`;
               break;
 
             default:
               tblData += `<td>${toTitleCase(value)}</td>`;
+              break;
           }
         }
       });
@@ -211,12 +252,12 @@ $(document).ready(() => {
 
     // Populate Table Footer
     tblData += `<tfoot><tr><td colspan="${_rowCount}"> <button type="button" class="btn btn-info center" data-toggle="modal" data-target="#${dataForm}" data-caller="${_caller}">Register ${_caller}.</button> </td></tr></tfoot>`;
-
     tblData += '</table>';
 
     populateModal(_caller);
     $('#pgcontent').append(`<div class="col-sm-12 col-md-12">${tblData}</div>`);
     oTable = $('#tblData').DataTable();
+    // oTable.colReorder.order([0, 1, 2, 5, 3, 4]);
     setEditables();
   }
 
@@ -229,7 +270,7 @@ $(document).ready(() => {
         // console.log(response.headers['x-access-token']);
       })
       .catch((error) => {
-        Notify(GIS.toastType.Error, error.message);
+        Notify(GIS.toastType.Error, error.response.data.message);
       });
   }
 
@@ -237,8 +278,9 @@ $(document).ready(() => {
     e.preventDefault();
     $('#pgcontent').empty();
     const _category = $(this).text();
+    const _apiPath = $(this).data('api');
     $('#pgHeader').html(`${_category} Setup.`);
-    const _url = `${api + $(this).data('api')}/${_category}`;
+    const _url = `${api + _apiPath}/${_category}`;
 
     $('#navlinks li a').filter(function () {
       $(this).removeClass('linkactive');
@@ -247,7 +289,21 @@ $(document).ready(() => {
     $(this).addClass('linkactive').parent().parent()
       .addClass('in')
       .parent();
-    loadData(_url);
+
+    switch (_apiPath.toLowerCase()) {
+      case 'lga':
+        break;
+
+      case 'primary':
+        break;
+
+      case 'secondary':
+        break;
+
+      default:
+        loadData(_url);
+        break;
+    }
   });
 });
 
@@ -296,15 +352,15 @@ $(document).ready(() => {
             method: 'put',
             headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
           })
-          .then((response) => {
-            if (response.data.success) {
-              $('.editable-popup').hide();
-              Notify(GIS.toastType.Success, response.data.message);
-            }
-          })
-          .catch((error) => {
-            Notify(GIS.toastType.Error, error.message);
-          });
+            .then((response) => {
+              if (response.data.success) {
+                $('.editable-popup').hide();
+                Notify(GIS.toastType.Success, response.data.message);
+              }
+            })
+            .catch((error) => {
+              Notify(GIS.toastType.Error, error.response.data.message);
+            });
         });
 
         if (this.options.radiolist.linebreak) {

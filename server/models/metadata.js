@@ -40,7 +40,7 @@ const metadataModel = (sequelize, DataTypes) => {
   Metadata.createRules = () => ({
     status: 'required|boolean',
     category: 'required|string',
-    description: 'required|alpha',
+    description: 'required|string',
     created_by: 'required|integer'
   });
 

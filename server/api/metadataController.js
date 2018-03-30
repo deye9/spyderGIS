@@ -17,11 +17,17 @@ const metadataController = {
           model: models.User,
           attributes: ['firstname', 'lastname', 'email']
         }
+      ],
+      order: [
+        ['id', 'DESC']
       ]
     })
       .then((foundMeta) => {
         if (!foundMeta) {
-          return Promise.reject({ code: 404, message: 'Metadata not found', success: false });
+          return res.status(404).json({
+            success: false,
+            message: 'Metadata not found',
+          });
         }
         return foundMeta;
       })
@@ -45,7 +51,6 @@ const metadataController = {
       created_by: req.decoded.UserID
     };
     const validator = new Validator(body, Meta.createRules());
-
     if (validator.passes()) {
       Meta.findOne(
         {
@@ -58,7 +63,10 @@ const metadataController = {
         })
         .then((foundMeta) => {
           if (foundMeta) {
-            return Promise.reject({ code: 409, message: 'You have this Metadata already, please edit it.', success: false });
+            return res.status(409).json({
+              success: false,
+              message: 'You have this Metadata already, please edit it.'
+            });
           }
           Meta.create({
             status: body.status,
@@ -144,12 +152,35 @@ const metadataController = {
       .catch(error => res.status(500).json({ errors: error.errors }));
   },
   destroy(req, res) {
-    if (req.user) {
-      return res.redirect('/');
-    }
-    res.render('account/login', {
-      title: 'Login'
-    });
+    return Meta
+      .findById(req.params.category)
+      .then((meta) => {
+        if (!meta) {
+          return res.status(404).send({
+            success: false,
+            message: 'Metadata Not Found'
+          });
+        }
+        if (req.decoded.UserID !== meta.created_by) {
+          return res.status(404).json({
+            success: false,
+            message: 'You have no access to remove this metadata.'
+          });
+        }
+        return meta
+          .destroy()
+          .then(() => res.status(200).json({
+            success: true,
+            id: req.params.category,
+            message: 'MetaData has been successfully deleted.'
+          }))
+          .catch(error => res.status(400).json({
+            success: false,
+            errors: error.errors,
+            message: 'Metadata was not removed as requested.'
+          }));
+      })
+      .catch(error => res.status(500).json({ errors: error.errors }));
   },
 };
 
