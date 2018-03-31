@@ -57,8 +57,7 @@ const metadataController = {
           where: {
             status: body.status,
             category: body.category,
-            description: body.description,
-            created_by: req.decoded.UserID
+            description: body.description
           }
         })
         .then((foundMeta) => {

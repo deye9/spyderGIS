@@ -21,7 +21,7 @@ module.exports = {
       },
       state: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       lga: {
         allowNull: false,
@@ -32,7 +32,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       status: {
-        allowNull: true,
+        allowNull: false,
         defaultValue: false,
         type: Sequelize.BOOLEAN
       },

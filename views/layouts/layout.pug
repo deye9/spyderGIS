@@ -252,21 +252,19 @@ html
                   label#lblstatus.control-label(for="status")
                   |                                 
                   div(data-toggle="buttons")
-                    input#status.form-control.required(type="hidden", name="status", value="true")
-                    |                                     
-                    label#activate.btn.btn-md.btn-default.btn-info.active(data-val="true")
+                    label#activatelga.btn.btn-md.btn-default.btn-info.active(data-val="true")
                       input(type="radio")
                       |                                         
                       i.fa.fa-thumbs-o-up    Activate
                     |                                     
-                    label#deactivate.btn.btn-md.btn-default.btn-danger(data-val="false")
+                    label#deactivatelga.btn.btn-md.btn-default.btn-danger(data-val="false")
                       input(type="radio")
                       |                                         
                       i.fa.fa-thumbs-o-down    Deactivate
                 |
               |       
               .modal-footer
-                button#btnMetaSave.btn.btn-info(type="button") Register LGA
+                button#btnLgaSave.btn.btn-info(type="button") Register LGA
                 |         
                 button.btn.btn-danger(type="button", data-dismiss="modal") Close    
     include ../partials/footer

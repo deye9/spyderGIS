@@ -13,7 +13,7 @@ const GIS = {
 let whos = null;
 let oTable = '';
 const api = '/api/';
-const excludeKeys = 'id, created_by, deleted_at, category';
+const excludeKeys = 'id, created_by, deleted_at, category, updated_at';
 
 toastr.options = {
   closeButton: true,
@@ -103,6 +103,10 @@ $(document).ready(() => {
   
   function toTitleCase(str) {
     str = $.trim(str);
+    if (str.indexOf(':') !== -1) {
+      str = str.split(":");
+      str = str[1];
+    }
     str = str.replace('_', ' ');
     str = str.toLowerCase().replace('user', 'created by');
     return str.replace(/(?:^|\s)\w/g, match => match.toUpperCase());
@@ -118,29 +122,48 @@ $(document).ready(() => {
     })
       .then((response) => {
         if (response.data.success) {
+          let rowNode = [];
+          const _category = $('.linkactive').text();
           Notify(GIS.toastType.Success, response.data.message);
 
           // Populate Table Body
           jsonObj = response.data.data;
-          oTable
-            .row.add([
-              0,
+
+          if (_category.toLowerCase() === 'lga') {
+            rowNode = [
+              `<td><a href="#" onclick="deleteRow(${jsonObj.id});" class="delete btn btn-default btn-danger"><i class="glyphicon glyphicon-trash"></i></a> ${jsonObj.id} </td>`,
+              `<td><img src="${jsonObj.flag}" alt="${toTitleCase(json.country)}'s Flag" title="${toTitleCase(json.country)}'s Flag" class="img-responsive" style="width:32px; height:32px;" /></td>`,
+              `<td nowrap>${toTitleCase(json.continent)}</td>`,
+              `<td nowrap>${toTitleCase(json.country)}</td>`,
+              `<td nowrap>${toTitleCase(json.state)}</td>`,
+              `<td nowrap>${toTitleCase(json.lga)}</td>`,
+              `<td nowrap>${toTitleCase(json.area)}</td>`,
+              `<td id="dataStatus"><a id="st${jsonObj.id}" href="#" style="color:blue;" data-type="radiolist" data-title="Set Status" data-pk="${jsonObj.id}">${toTitleCase(jsonObj.status === true ? 'Active' : 'Inactive')}</a></td>`,
+              `<td>${moment(jsonObj.created_at).format('dddd Do of MMMM YYYY hh:mm:ss')}</td>`,
+              `<td nowrap>''</td>`
+            ];
+          } else {
+            rowNode = [
+              `<td><a href="#" onclick="deleteRow(${jsonObj.id});" class="delete btn btn-default btn-danger"><i class="glyphicon glyphicon-trash"></i></a> ${jsonObj.id} </td>`,
               `<td id="dataDescription"><a href="#" style="color:blue;" data-type="textarea" data-title="Edit Description" data-pk="${jsonObj.id}">${toTitleCase(jsonObj.description)}</a></td>`,
               `<td id="dataStatus"><a id="st${jsonObj.id}" href="#" style="color:blue;" data-type="radiolist" data-title="Set Status" data-pk="${jsonObj.id}">${toTitleCase(jsonObj.status === true ? 'Active' : 'Inactive')}</a></td>`,
               `<td>${moment(jsonObj.created_at).format('dddd Do of MMMM YYYY hh:mm:ss')}</td>`,
-              `<td>${moment(jsonObj.updated_at).format('dddd Do of MMMM YYYY hh:mm:ss')}</td>`,
               ' '
               // `<td><a href="mailto:${value.email}?Subject=Hello%20again" target="_top" style="color:#01c0c8;">${toTitleCase(`${value.firstname} ${value.lastname}`)}</a></td>`
-            ])
+            ];
+          }
+          oTable.row
+            .add(rowNode)
             .draw()
             .node();
           setEditables();
+          $('.modal').modal('hide');          
         } else {
           Notify(GIS.toastType.Error, response.data.message);
         }
       })
       .catch((error) => {
-        Notify(GIS.toastType.Error, error.response.data.message);
+        Notify(GIS.toastType.Error, error.response.message);
       });
   }
 
@@ -171,10 +194,27 @@ $(document).ready(() => {
     if ($('#description').val() !== '') {
       const _data = { description: $('#description').val(), status: _status, category: _category };
       handleRequest('post', _url, _data);
-      $('#metadata').modal('hide');
     } else {
       Notify(GIS.toastType.Info, `${_category} description cannot be empty.`);
     }
+  });
+
+  $('#btnLgaSave').on('click', () => {
+    const _category = $('.linkactive').text();
+    const _path = $('.linkactive').data('api');
+    const _url = `${api + _path}/${_category}`;
+
+    const _data = {
+      status: !!$('#activatelga').hasClass('active'),
+      flag: $("#country option:selected").attr('flag'),
+      area: $('#area').val() + ':' + $("#area option:selected").text(),
+      state: $('#state').val() + ':' + $("#state option:selected").text(),
+      country: $('#country').val() + ':' + $("#country option:selected").text(),
+      lga: $('#lga_region').val() + ':' + $("#lga_region option:selected").text(),
+      continent: $('#continent').val() + ':' + $("#continent option:selected").text()
+    };
+
+    handleRequest('post', _url, _data);
   });
 
   function createEmptyTable(tblTemplate) {
@@ -238,6 +278,9 @@ $(document).ready(() => {
             case 'user':
               tblData += `<td><a href="mailto:${value.email}?Subject=Hello%20again" target="_top" style="color:#01c0c8;">${toTitleCase(`${value.firstname} ${value.lastname}`)}</a></td>`;
               break;
+            case 'flag':
+              tblData += `<td><img src="${value}" alt="${toTitleCase(object.country)}'s Flag" title="${toTitleCase(object.country)}'s Flag" class="img-responsive" style="width:32px; height:32px;" /></td>`;
+              break;            
             case 'created_at':
             case 'updated_at':
               if (value == null) {
@@ -248,7 +291,7 @@ $(document).ready(() => {
               break;
 
             default:
-              tblData += `<td>${toTitleCase(value)}</td>`;
+              tblData += `<td nowrap>${toTitleCase(value)}</td>`;
               break;
           }
         }
@@ -430,26 +473,31 @@ $(document).ready(() => {
 // So, be extremely cautious in your use of this script.
 //
 
-function getplaces(gid,src)
-{	
-  whos = src
+function getplaces(gid,src) {
+  whos = src;
   var request = "http://www.geonames.org/childrenJSON?geonameId="+gid+"&callback=listPlaces&style=long";
   aObj = new JSONscriptRequest(request);
   aObj.buildScriptTag();
   aObj.addScriptTag();	
 }
 
-function listPlaces(jData)
-{
+function listPlaces(jData) {
   counts = jData.geonames.length<jData.totalResultsCount ? jData.geonames.length : jData.totalResultsCount;
   who = document.getElementById(whos);
   who.options.length = 0;
   
-  if(counts)who.options[who.options.length] = new Option('Select', '');
-  else who.options[who.options.length] = new Option('No Data Available', 'NULL');
+  if (counts) { who.options[who.options.length] = new Option('Select', ''); }
+  else { who.options[who.options.length] = new Option('No Data Available', 'NULL'); }
       
-  for(var i=0;i<counts;i++)
-    who.options[who.options.length] = new Option(jData.geonames[i].name,jData.geonames[i].geonameId);
+  for(var i=0;i<counts;i++) {
+    let countryCode = jData.geonames[i].countryCode;
+    let opt = new Option(jData.geonames[i].name, jData.geonames[i].geonameId);
+
+    if (typeof countryCode !== 'undefined') {
+      $(opt).attr('flag', `http://www.geonames.org/flags/x/${countryCode.toLowerCase()}.gif`);
+    }
+    who.options[who.options.length] = opt;
+  }
 
   delete jData;
   jData = null		

@@ -43,41 +43,33 @@ const lgaController = {
       }));
   },
   create(req, res) {
-    const body = {
-      status: req.body.status,
-      details: req.body.details,
-      description: req.body.description,
-      created_by: req.decoded.UserID
-    };
+    const body = req.body;
+    body.created_by = req.decoded.UserID;
     const validator = new Validator(body, Lga.createRules());
+
     if (validator.passes()) {
       Lga.findOne(
         {
           where: {
-            status: body.status,
-            details: body.details,
-            description: body.description,
-            created_by: req.decoded.UserID
+            lga: body.lga,
+            area: body.area,
+            state: body.state,
+            country: body.country
           }
         })
         .then((foundLga) => {
           if (foundLga) {
             return res.status(409).json({
               success: false,
-              message: 'You have this Lgadata already, please edit it.'
+              message: 'This LGA has already been registered, please edit it.'
             });
           }
-          Lga.create({
-            status: body.status,
-            details: body.details,
-            description: body.description,
-            created_by: req.decoded.UserID
-          })
+          Lga.create(body)
             .then(newLga =>
               res.status(201).json({
                 data: newLga,
                 success: true,
-                message: `Lgadata was successfully created for ${body.details}.`
+                message: `LGA was successfully created for ${body.country}.`
               })
             )
             .catch(Lgaerror => res.status(400).json({
