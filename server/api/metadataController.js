@@ -148,7 +148,7 @@ const metadataController = {
             message: `${body.category} metadata not updated.`
           }));
       })
-      .catch(error => res.status(500).json({ errors: error.errors }));
+      .catch(error => res.status(500).json({ errors: error }));
   },
   destroy(req, res) {
     return Meta

@@ -1,0 +1,17 @@
+git add . 
+git commit -am "LGA Runs" 
+git push origin master
+
+git remote set-url origin
+
+sequelize db:migrate
+sequelize db:migrate:undo:all
+npm run babel
+
+const isAjaxRequest = (req.xhr || req.headers.accept.indexOf('json') > -1);
+https://eager.io/blog/audit-postgres/
+https://stackoverflow.com/questions/7042340/error-cant-set-headers-after-they-are-sent-to-the-client
+
+X-editable-radiolist
+https://gist.github.com/taivo/da6d47c7b291f71b9502
+http://vikku.info/programming/geodata/geonames-get-country-state-city-hierarchy.htm

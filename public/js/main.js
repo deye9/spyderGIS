@@ -85,6 +85,7 @@ function deleteRow(_id) {
     .then((response) => {
       if (response.data.success) {
         let tblRow = $('#tr' + response.data.id);
+        $('.modal').modal('hide');
         oTable.row(tblRow).remove().draw();
         Notify(GIS.toastType.Success, response.data.message);
       } else {
