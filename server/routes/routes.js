@@ -1,4 +1,5 @@
 import authMiddleWare from '../middleware/auth';
+import lgaController from '../api/lgaController';
 import homeController from '../controllers/homeController';
 import userController from '../controllers/userController';
 import metadataController from '../api/metadataController';
@@ -37,9 +38,15 @@ const routes = (router) => {
 
   router.route('/api/metadata/:category')
     .put(authMiddleWare.verifyToken, authMiddleWare.verifyUser, metadataController.update)
+    .post(authMiddleWare.verifyToken, authMiddleWare.verifyUser, metadataController.create)
     .get(authMiddleWare.verifyToken, authMiddleWare.verifyUser, metadataController.retrieve)
-    .delete(authMiddleWare.verifyToken, authMiddleWare.verifyUser, metadataController.destroy)
-    .post(authMiddleWare.verifyToken, authMiddleWare.verifyUser, metadataController.create);
+    .delete(authMiddleWare.verifyToken, authMiddleWare.verifyUser, metadataController.destroy);
+
+  router.route('/api/lga/:details')
+    .put(authMiddleWare.verifyToken, authMiddleWare.verifyUser, lgaController.update)
+    .post(authMiddleWare.verifyToken, authMiddleWare.verifyUser, lgaController.create)
+    .get(authMiddleWare.verifyToken, authMiddleWare.verifyUser, lgaController.retrieve)
+    .delete(authMiddleWare.verifyToken, authMiddleWare.verifyUser, lgaController.destroy);
 
   router.get('*', (req, res) =>
     res.status(404).send({

@@ -10,6 +10,7 @@ const GIS = {
   },
   toastTitle: 'GIS Notification Service'
 };
+let whos = null;
 let oTable = '';
 const api = '/api/';
 const excludeKeys = 'id, created_by, deleted_at, category';
@@ -143,6 +144,18 @@ $(document).ready(() => {
       });
   }
 
+  $('.modal').on('show.bs.modal', function(event) {
+    // Update the modal's content.
+    var modal = $(this);
+    const modalTitle = $('.linkactive').text();
+    modal.find('.modal-title').text(`Setup ${modalTitle}.`);
+    modal.find('#lblstatus').text(`${modalTitle} Status *`);
+
+    if ($('#continent').length === 1) {
+      getplaces(6295630, 'continent');
+    }
+  });
+
   $('.modal').on('hidden.bs.modal', () => {
     $('#description').val('');
     $('#activate').addClass('active');
@@ -164,11 +177,6 @@ $(document).ready(() => {
     }
   });
 
-  function populateModal(modalTitle) {
-    $('#lblstatus').text(`${modalTitle} Status *`);
-    $('#myModalTitle').html(`Setup ${modalTitle}.`);
-  }
-
   function createEmptyTable(tblTemplate) {
     const _caller = $('.linkactive').text();
     const dataForm = $('.linkactive').data('api');
@@ -183,7 +191,6 @@ $(document).ready(() => {
     tblTemplate += `<tfoot><tr><td> <button type="button" class="btn btn-info center" data-toggle="modal" data-target="#${dataForm}" data-caller="${_caller}">Register ${_caller}.</button> </td></tr></tfoot>`;
     tblTemplate += '</table>';
 
-    populateModal(_caller);
     $('#pgcontent').append(`<div class="col-sm-12 col-md-12">${tblTemplate}</div>`);
     oTable = $('#tblData').DataTable();
   }
@@ -254,7 +261,6 @@ $(document).ready(() => {
     tblData += `<tfoot><tr><td colspan="${_rowCount}"> <button type="button" class="btn btn-info center" data-toggle="modal" data-target="#${dataForm}" data-caller="${_caller}">Register ${_caller}.</button> </td></tr></tfoot>`;
     tblData += '</table>';
 
-    populateModal(_caller);
     $('#pgcontent').append(`<div class="col-sm-12 col-md-12">${tblData}</div>`);
     oTable = $('#tblData').DataTable();
     // oTable.colReorder.order([0, 1, 2, 5, 3, 4]);
@@ -291,9 +297,6 @@ $(document).ready(() => {
       .parent();
 
     switch (_apiPath.toLowerCase()) {
-      case 'lga':
-        break;
-
       case 'primary':
         break;
 
@@ -305,6 +308,7 @@ $(document).ready(() => {
         break;
     }
   });
+
 });
 
 (function ($) {
@@ -408,317 +412,83 @@ $(document).ready(() => {
   $.fn.editabletypes.radiolist = Radiolist;
 }(window.jQuery));
 
-// $(document).ready(function() {
+// JSONscriptRequest -- a simple class for accessing Yahoo! Web Services
+// using dynamically generated script tags and JSON
+//
+// Author: Jason Levitt
+// Date: December 7th, 2005
+//
+// A SECURITY WARNING FROM DOUGLAS CROCKFORD:
+// "The dynamic <script> tag hack suffers from a problem. It allows a page 
+// to access data from any server in the web, which is really useful. 
+// Unfortunately, the data is returned in the form of a script. That script 
+// can deliver the data, but it runs with the same authority as scripts on 
+// the base page, so it is able to steal cookies or misuse the authorization 
+// of the user with the server. A rogue script can do destructive things to 
+// the relationship between the user and the base server."
+//
+// So, be extremely cautious in your use of this script.
+//
 
-//     $.ajaxSetup({
-//         headers:
-//         {
-//             "cache-control": "no-cache",
-//             "content-type": "application/json",
-//             "authorization": "bearer " + $('#tok').val(),
-//             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-//     });
+function getplaces(gid,src)
+{	
+  whos = src
+  var request = "http://www.geonames.org/childrenJSON?geonameId="+gid+"&callback=listPlaces&style=long";
+  aObj = new JSONscriptRequest(request);
+  aObj.buildScriptTag();
+  aObj.addScriptTag();	
+}
 
-//     function Convert2DataTable() {
+function listPlaces(jData)
+{
+  counts = jData.geonames.length<jData.totalResultsCount ? jData.geonames.length : jData.totalResultsCount;
+  who = document.getElementById(whos);
+  who.options.length = 0;
+  
+  if(counts)who.options[who.options.length] = new Option('Select', '');
+  else who.options[who.options.length] = new Option('No Data Available', 'NULL');
+      
+  for(var i=0;i<counts;i++)
+    who.options[who.options.length] = new Option(jData.geonames[i].name,jData.geonames[i].geonameId);
 
-//         var tables = $.fn.dataTable.fnTables(true);
+  delete jData;
+  jData = null		
+}
 
-//         $(tables).each(function () {
-//             $(this).dataTable().fnDestroy();
-//         });
+// Constructor -- pass a REST request URL to the constructor
+function JSONscriptRequest(fullUrl) {
+  // REST request path
+  this.fullUrl = fullUrl; 
+  // Keep IE from caching requests
+  this.noCacheIE = '&noCacheIE=' + (new Date()).getTime();
+  // Get the DOM location to put the script tag
+  this.headLoc = document.getElementsByTagName("head").item(0);
+  // Generate a unique script tag id
+  this.scriptId = 'YJscriptId' + JSONscriptRequest.scriptCounter++;
+}
 
-//         // Create a new Instance of the DataTable.
-//         oTable = $('.dtable').DataTable({
-//             destroy: true,
-//         });
-//     }
+// Static script ID counter
+JSONscriptRequest.scriptCounter = 1;
 
-//     $('#dynamicModal').on('show.bs.modal', function () {
-//         var modal = $(this);
-//         modal.find('.modal-title').text('Setup ' + Spyder.DynamicHeader + ' Category.');
-//         modal.find('.modal-body').html(Spyder.DynamicModalBody);
-//     });
+// buildScriptTag method
+JSONscriptRequest.prototype.buildScriptTag = function () {
+  // Create the script tag
+  this.scriptObj = document.createElement("script");
+  
+  // Add script object attributes
+  this.scriptObj.setAttribute("type", "text/javascript");
+  this.scriptObj.setAttribute("src", this.fullUrl + this.noCacheIE);
+  this.scriptObj.setAttribute("id", this.scriptId);
+}
 
-//     $("#dynamicModal").on('hidden.bs.modal', function () {
-//         var modal = $(this);
-//         Spyder.DynamicModalBody = '';
-//         modal.find('.modal-body').html('');
-//         modal.find('.modal-title').text('');
-//         $('#modalsave').prop("disabled", false);
+// removeScriptTag method
+JSONscriptRequest.prototype.removeScriptTag = function () {
+  // Destroy the script tag
+  this.headLoc.removeChild(this.scriptObj);  
+}
 
-//         // Clear all inputs of their values
-//         // $(this)
-//         // .find("input,textarea,select")
-//         //    .val('')
-//         //    .end()
-//         // .find("input[type=checkbox], input[type=radio]")
-//         //    .prop("checked", "")
-//         //    .end()
-//         // .find("input[type=button]")
-//         //    .text('Save changes')
-//         //    .end();
-//     });
-
-//     $('.clickable').on("click", function () {
-//         Spyder.DynamicHeader = $(this).html();
-//         Spyder.local.key = $(this).data('key');
-//         var jsonObj = "{" + $(this).data('rename').replace(/'/gi, '"') + "}";
-//         Spyder.local.rename = $.parseJSON(jsonObj);
-
-//         Spyder.local.uri = window.location.protocol + "//" + window.location.host + "/" + Spyder.BaseAPIUrl + $(this).data('mother');
-
-//         var settings = {
-//             "async": true,
-//             "crossDomain": true,
-//             "url": Spyder.local.uri.toString(),
-//             "method": "GET",
-//             "processData": false
-//         };
-
-//         $.ajax(settings).done(function (response) {
-
-//             $("#dashboard_content").empty();
-//             $('#pgheader').html('List of <i>' + Spyder.DynamicHeader + '\'s</i> registered so far. <button type="button" class="btn btn-primary pull-right" onclick="NewRegistration();"> Register ' + Spyder.DynamicHeader + '. </button>');
-
-//             var Tbl = "<table id='TblRecords' class='table dtable table-condensed table-striped table-bordered table-hover table-bordered'>";
-
-//             // Build out the Table header.
-//             Tbl += "<thead><tr><th> S/N </th>";
-//             $.each(response, function(key, value) {
-//                 $.each(value[0], function(index, ivalue) {
-//                     if (index !== Spyder.local.key) {
-//                         Tbl += "<th> " + Spyder.local.rename[index] + " </th>";
-//                     }
-//                 });
-//             });
-//             Tbl += "<th> &nbsp; </th></tr></thead>";
-
-//             // Build out the Table Body.
-//             Tbl += "<tbody>";
-//             $.each(response, function(key, value) {
-//                 $.each(value, function(index, ivalue) {
-//                     Tbl += "<tr>";
-//                     Tbl += "<td> " + (index + 1) + " </td>";
-
-//                     $.each(ivalue, function(fkey, fvalue) {
-//                         if (fkey !== Spyder.local.key) {
-//                             Tbl += "<td> " + fvalue + " </td>";
-//                         }
-//                     });
-
-//                     // Add the Edit and Delete buttons here.
-//                     Tbl += "<td>&nbsp;&nbsp;<a style='cursor:pointer' data-payload='" + JSON.stringify(ivalue) + "' onclick='EditRecord(this);'><i class='fa fa-pencil'></i></a>";
-//                     Tbl += "&nbsp;&nbsp;&nbsp;&nbsp;<a style='cursor:pointer' data-payload='" + JSON.stringify(ivalue) + "' onclick='DeleteRecord(this);'><i class='fa fa-trash'></i></a></td>";
-//                     Tbl += "</tr>";
-//                 });
-//             });
-//             Tbl += "</tbody>";
-//             Tbl += "</table>";
-
-//             // replace content in dashboard_content with table content
-//             $( "#dashboard_content" ).append(Tbl);
-
-//             Convert2DataTable();
-//         });
-//     });
-
-//     $('#modalsave').on('click', function() {
-//         var item = {};
-//         var form = $("#dataform");
-//         $(this).prop("disabled", true);
-//         form.validate({
-//             errorPlacement: function errorPlacement(error, element) { element.before(error); }
-//         });
-//         form.validate().settings.ignore = ":disabled,:hidden";
-
-//         if(form.valid()) {
-
-//             var _mtd, _uri;
-//             $(".modal-body :input").each(function(e) {
-//                 var patt = new RegExp("description");
-//                 if (this.id === Spyder.local.key) {
-//                     id = 'id';
-//                 } else if (patt.test(this.id.toLowerCase())) {
-//                     id = 'description';
-//                 } else {
-//                     id = this.id.toLowerCase().replace(' ', '_');
-//                 }
-
-//                 item[id] = this.value;
-//             });
-
-//             if (Spyder.Action.toLowerCase() === "register") {
-//                 _mtd = "POST";
-//                 _uri =Spyder.local.uri;
-//             } else {
-//                 _mtd = "PUT";
-//                 _uri =Spyder.local.uri + '/update';
-//             }
-
-//             var settings = {
-//                 "async": true,
-//                 "crossDomain": true,
-//                 "url": _uri,
-//                 "method": _mtd,
-//                 "processData": false,
-//                 "data": JSON.stringify(item)
-//             };
-
-//             $.ajax(settings).done(function (response) {
-//                 PageReload();
-//             });
-//         } else {
-//             $(this).prop("disabled", false);
-//         }
-//     });
-
-// });
-
-// function PageReload() {
-//     $('#dynamicModal').modal('hide');
-//     $('#side-menu').find('a[data-key="' + Spyder.local.key + '"]')[0].click();
-// }
-
-// function EditRecord(Ctrl) {
-//     var _payload = $(Ctrl).data('payload');
-//     var _id = _payload[Spyder.local.key];
-
-//     var Tbl = "<form id='dataform' action='#'><table id='TblEdit' class='table table-condensed table-striped table-bordered table-hover table-bordered'><tbody>";
-//     $.each(_payload, function(key, value) {
-//         if (Spyder.local.key === key) {
-//             Tbl += '<caption><input type="hidden" name="' + Spyder.local.key + '" id="' + Spyder.local.key + '" value="' + _id + '" /></caption>';
-//         } else {
-
-//             Tbl += '<tr>';
-//             Tbl += '<div class="row">';
-//             Tbl += '<div class="panel panel-primary">';
-//             Tbl += '    <div class="panel-body">';
-//             Tbl += '        <div class="col-md-12" title="' + Spyder.local.rename[key] + '">';
-//             Tbl += '            <label for="' + Spyder.local.rename[key] + '"> ' + Spyder.local.rename[key] + ' *</label>';
-
-//             switch(Spyder.local.rename[key].toLowerCase()) {
-//                 case 'stateid':
-//                 case 'primary category':
-//                     Tbl += '            <input id="' + Spyder.local.rename[key] + '" required name="' + Spyder.local.rename[key] + '" type="number" value="' + value + '" class="form-control required" />';
-//                     break;
-
-//                 case 'status':
-//                     Tbl += '            <input id="' + Spyder.local.rename[key] + '" required name="' + Spyder.local.rename[key] + '" type="text" maxlength="1" value="' + value + '" class="form-control required" />';
-//                     break;
-
-//                 default:
-//                     Tbl += '            <input id="' + Spyder.local.rename[key] + '" required name="' + Spyder.local.rename[key] + '" type="text" value="' + value + '" class="form-control required" />';
-//             }
-
-//             Tbl += '        </div>';
-//             Tbl += '    </div>';
-//             Tbl += '</div>';
-//             Tbl += '</div>';
-//             Tbl += '</tr>';
-//         }
-//     });
-//     Tbl += "</tbody></table></form>";
-
-//     Spyder.Action = "Update";
-//     Spyder.DynamicModalBody = Tbl;
-//     $('#dynamicModal').modal('show');
-// }
-
-// function NewRegistration() {
-
-//     var Tbl = "<form id='dataform' action='#'><table id='TblEdit' class='table table-condensed table-striped table-bordered table-hover table-bordered'><tbody>";
-//     $.each(Spyder.local.rename, function(key, value) {
-//         Tbl += '<tr>';
-//         Tbl += '<div class="row">';
-//         Tbl += '<div class="panel panel-primary">';
-//         Tbl += '    <div class="panel-body">';
-//         Tbl += '        <div class="col-md-12" title="' + Spyder.local.rename[key] + '">';
-//         Tbl += '            <label for="' + Spyder.local.rename[key] + '"> ' + Spyder.local.rename[key] + ' *</label>';
-
-//         switch(Spyder.local.rename[key].toLowerCase()) {
-//             case 'stateid':
-//             case 'primary category':
-//                 Tbl += '            <input id="' + Spyder.local.rename[key] + '" required name="' + Spyder.local.rename[key] + '" type="number" value="" class="form-control required" />';
-//                 break;
-
-//             case 'status':
-//                 Tbl += '            <input id="' + Spyder.local.rename[key] + '" required name="' + Spyder.local.rename[key] + '" type="text" maxlength="1" value="" class="form-control required" />';
-//                 break;
-
-//             default:
-//                 Tbl += '            <input id="' + Spyder.local.rename[key] + '" required name="' + Spyder.local.rename[key] + '" type="text" value="" class="form-control required" />';
-//         }
-
-//         Tbl += '        </div>';
-//         Tbl += '    </div>';
-//         Tbl += '</div>';
-//         Tbl += '</div>';
-//         Tbl += '</tr>';
-//     });
-//     Tbl += "</tbody></table></form>";
-
-//     Spyder.Action = "Register";
-//     Spyder.DynamicModalBody = Tbl;
-//     $('#dynamicModal').modal('show');
-// }
-
-// function DeleteRecord(Ctrl, RowData) {
-
-//     var _payload = $(Ctrl).data('payload');
-//     var _uri = Spyder.local.uri + '/destroy?id=' + _payload[Spyder.local.key];
-
-//     var settings = {
-//         "async": true,
-//         "crossDomain": true,
-//         "url": _uri.toString(),
-//         "method": "DELETE",
-//         "processData": false,
-//     };
-
-//     $.ajax(settings).done(function (response) {
-//         if (response.Message.toLowerCase() === 'data successfully deleted.') {
-//             PageReload();
-//         }
-//     });
-// }
-
-// function BuildSummary() {
-
-//     // Build or initialize the structure outright
-//     var dataModel = {
-//         roadtype: { typedesc: $('#typedesc').val() },
-//         buildingtype: { type_desc: $('#type_desc').val() },
-//         Drainage: { drainagedesc: $('#drainagedesc').val() },
-//         roadsurface: { surfacedesc: $('#surfacedesc').val() },
-//         roadfeature: { featuredesc: $('#featuredesc').val() },
-//         roadcondition: { conditiondesc: $('#conditiondesc').val() },
-//         sitecondition: { conditiondesc: $('#conditiondesc').val() },
-//         streetfurniture: { furnituredesc: $('#furnituredesc').val() },
-//         lga: { stateid: $('#stateid').val(), thelga: $('#thelga').val() },
-//         buildingapartments: { building_log: "", apartments: $('#apartments').val() },
-//         primary: { pry_category: $('#pry_category').val(), pry_status: $('#pry_status').val() },
-//         refusedisposal: { collectiondesc: $('#collectiondesc').val(), refuse_status: $('#refuse_status').val() },
-//         roadcarriagetype: { carriagedesc: $('#carriagedesc').val(), carriagetypestatus: $('#carriagetypestatus').val() },
-//         buildinglog: { house_no: $('#house_no').val(), w3w: $('w3w').val(), x_coord: $('x_coord').val(), y_coord: $('y_coord').val()},
-//         secondary: { sec_category: $('#sec_category').val(), pry_category: $('#pry_category').val(), sec_status : $('#sec_status').val() },
-//         buildingapartmentlogs: { buildingid: $('#buildingid').val(), apartment_use: $('#apartment_use').val(), apartment_desc: $('#apartment_desc').val() },
-//     };
-
-//     // Make an Ajax call to the server to process the dataModel
-//     $.ajax({
-//         url: '/store',
-//         data: dataModel,
-//         type: "POST",
-//         dataType: 'json',
-//         success: function (response) {
-//             console.log(response);
-//             if (response.status.toLowerCase() == 'success') {
-//                 return true;
-//             }
-//         },
-//         error: function (xhr, ajaxOptions, thrownError) {
-//             alert('<strong>' + thrownError + '</strong>', 'ERROR', 'YuPay');
-//         }
-//     });
-//     alert('PostToServer And Allow for final Mapping.')
-// }
+// addScriptTag method
+JSONscriptRequest.prototype.addScriptTag = function () {
+  // Create the script tag
+  this.headLoc.appendChild(this.scriptObj);
+}

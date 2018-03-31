@@ -7,11 +7,36 @@ module.exports = {
         autoIncrement: true,
         type: Sequelize.INTEGER
       },
-      lga: {
+      continent: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      flag: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      country: {
         allowNull: false,
         type: Sequelize.STRING
       },
       state: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      lga: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      area: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      status: {
+        allowNull: true,
+        defaultValue: false,
+        type: Sequelize.BOOLEAN
+      },
+      created_by: {
         allowNull: false,
         type: Sequelize.INTEGER
       },

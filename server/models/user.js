@@ -80,6 +80,13 @@ const userModel = (sequelize, DataTypes) => {
     });
   };
 
+  User.associate = (models) => {
+    User.hasMany(models.Lga, {
+      foreignKey: 'created_by',
+      as: 'lga'
+    });
+  };
+
   /**
     * Method for comparing passwords
     * @param { object } user

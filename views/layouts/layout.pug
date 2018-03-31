@@ -143,31 +143,31 @@ html
         |                 
         ul#navlinks.list-unstyled.components
           li
-            a.clickable(href="#", data-api="lga", data-rename="'thelga':'LGA','stateid':'StateID'") LGA
+            a.clickable(href="#", data-api="lga") LGA
           li
-            a.clickable(href="#", data-api="primary", data-rename="'pry_category':'Category','status':'Status'") Primary
+            a.clickable(href="#", data-api="primary") Primary
           li
-            a.clickable(href="#", data-api="metadata", data-rename="'drainagedesc':'Drainage Description'") Drainage
+            a.clickable(href="#", data-api="metadata") Drainage
           li
-            a.clickable(href="#", data-api="secondary", data-rename="'sec_category':'Secondary Category','pry_category':'Primary Category','status':'Status'") Secondary
+            a.clickable(href="#", data-api="secondary") Secondary
           li
-            a.clickable(href="#", data-api="metadata", data-rename="'typedesc':'Road Type Description'") Road Type
+            a.clickable(href="#", data-api="metadata") Road Type
           li
-            a.clickable(href="#", data-api="metadata", data-rename="'conditiondesc':'Site Condition Description'") Site Condition
+            a.clickable(href="#", data-api="metadata") Site Condition
           li
-            a.clickable(href="#", data-api="metadata", data-rename="'surfacedesc':'Road Surface Description'") Road Surface
+            a.clickable(href="#", data-api="metadata") Road Surface
           li
-            a.clickable(href="#", data-api="metadata", data-rename="'featuredesc':'Road Feature Description'") Road Feature
+            a.clickable(href="#", data-api="metadata") Road Feature
           li
-            a.clickable(href="#", data-api="metadata", data-rename="'type_desc':'Description'") Building Type
+            a.clickable(href="#", data-api="metadata") Building Type
           li
-            a.clickable(href="#", data-api="metadata", data-rename="'collectiondesc':'Collection Description','status':'Status'") Refuse Disposal
+            a.clickable(href="#", data-api="metadata") Refuse Disposal
           li
-            a.clickable(href="#", data-api="metadata", data-rename="'conditiondesc':'Road Condition Description'") Road Condition
+            a.clickable(href="#", data-api="metadata") Road Condition
           li
-            a.clickable(href="#", data-api="metadata", data-rename="'furnituredesc':'Street Furniture Description'") Street Furniture
+            a.clickable(href="#", data-api="metadata") Street Furniture
           li
-            a.clickable(href="#", data-api="metadata", data-rename="'carriagedesc':'Road Carriage Description','status':'Status'") Road Carriage Type
+            a.clickable(href="#", data-api="metadata") Road Carriage Type
       #content
         include ../partials/header
         h1 Spyder Geographic Information System
@@ -212,6 +212,63 @@ html
                 button#btnMetaSave.btn.btn-info(type="button") Save changes
                 |         
                 button.btn.btn-danger(type="button", data-dismiss="modal") Close
+        #lga.modal.fade(tabindex="-1", role="dialog", aria-labelledby="myModalLabel")
+          .modal-dialog(role="document")
+            .modal-content
+              .modal-header
+                button.close(type="button", data-dismiss="modal", aria-label="Close")
+                  span(aria-hidden="true", style="color:white;") ×
+                |         
+                h4#myModalTitle.modal-title Setup LGA Details.
+              |       
+              .modal-body
+                |                  
+                .form-group
+                  label(for="continent") Continent
+                  |
+                  select#continent.form-control(name="continent", onchange="getplaces(this.value,'country');")
+                    option(value="")
+                .form-group
+                  label(for="country") Country
+                  |
+                  select#country.form-control(name="country", onchange="getplaces(this.value,'state');")
+                    option(value="")
+                .form-group
+                  label(for="state") State / Province
+                  |
+                  select#state.form-control(name="state", onchange="getplaces(this.value,'lga_region');")
+                    option(value="")
+                .form-group
+                  label(for="lga_region") County / Region / LGA
+                  |
+                  select#lga_region.form-control(name="lga_region", onchange="getplaces(this.value,'area');")
+                    option(value="")
+                .form-group
+                  label(for="area") Area / City
+                  |
+                  select#area.form-control(name="area")
+                    option(value="")
+                .form-group
+                  label#lblstatus.control-label(for="status")
+                  |                                 
+                  div(data-toggle="buttons")
+                    input#status.form-control.required(type="hidden", name="status", value="true")
+                    |                                     
+                    label#activate.btn.btn-md.btn-default.btn-info.active(data-val="true")
+                      input(type="radio")
+                      |                                         
+                      i.fa.fa-thumbs-o-up    Activate
+                    |                                     
+                    label#deactivate.btn.btn-md.btn-default.btn-danger(data-val="false")
+                      input(type="radio")
+                      |                                         
+                      i.fa.fa-thumbs-o-down    Deactivate
+                |
+              |       
+              .modal-footer
+                button#btnMetaSave.btn.btn-info(type="button") Register LGA
+                |         
+                button.btn.btn-danger(type="button", data-dismiss="modal") Close    
     include ../partials/footer
 
     script(src='/js/lib/jquery-3.1.1.min.js')
